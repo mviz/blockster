@@ -11,7 +11,7 @@ var player = {'x' : 0, 'y' : 0, 'velocityY' : 0}
 var interval_ID = setInterval(worldLoop, 16);
 
 function worldLoop(){
-    applyPhysics();
+    applyPhysics(player);
     draw();
 }
 

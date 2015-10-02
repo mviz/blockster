@@ -4,7 +4,7 @@ function init_blocks() {
 	
 	var blocks = [];
 
-	var num_blocks = 10;
+	var num_blocks = 20;
 
 	while(blocks.length < 10) {
 	
@@ -12,8 +12,6 @@ function init_blocks() {
 					'x' : Math.random() * canvas.width, 
 					'y' : Math.random() * canvas.height
 		};
-	
-		console.log("hello");
 	
 		if(!is_overlapping_any(block, blocks)){
 			blocks.push(block);	
@@ -72,7 +70,6 @@ function generate_next_block(frame, blocks) {
 	if(frame >= next_block_frame) {
 
 		next_block_frame = frame + Math.random() * MAGIC_NUMBER;
-
 		var block;
 
 		do {

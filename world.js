@@ -22,6 +22,7 @@ function reset() {
     playervy = 1;
     player.isGrounded = false;
     frame = 0;
+    next_block_frame = 0;
 
     blocks = init_blocks();
 }
@@ -32,6 +33,7 @@ function worldLoop(){
         reset();
     }
 
+    block_move_speed = Math.abs(Math.sin(frame/50)) * 3;
     apply_physics(player);
     top_collision(player);
     bottom_collision(player);

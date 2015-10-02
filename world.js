@@ -9,7 +9,7 @@ var PLAYER_WIDTH = 8;
 var PLAYER_HEIGHT = 16;
 var PLAYER_X = 50;
 var frame = 0;
-var player = {'x' : 0, 'y' : 0, 'vy' : 1, 'isGrounded' : false};
+var player = {'x' : 0, 'y' : 0, 'vy' : 1, 'isGrounded' : false, 'canDoubleJump' : true};
 
 var interval_ID = setInterval(worldLoop, 1/FRAME_RATE);
 var block_move_speed = 1;
@@ -34,6 +34,7 @@ function worldLoop(){
 
     apply_physics(player);
     top_collision(player);
+    bottom_collision(player);
     draw_scene();
     draw_blocks(blocks);
     draw_avatar(player);

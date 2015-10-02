@@ -11,6 +11,8 @@ var frame = 0;
 var player = {'x' : 0, 'y' : 0, 'velocity_y' : 0};
 
 var interval_ID = setInterval(worldLoop, 1/FRAME_RATE);
+var brick_move_speed = 1;
+
 
 function worldLoop(){
     apply_physics(player);
@@ -18,6 +20,22 @@ function worldLoop(){
 
     draw_bricks(bricks);
     draw_avatar(player);
-    clearInterval(interval_ID);
 
+    new_brick = generate_next_block(frame);
+
+    if(new_brick) {
+    	bricks.push(new_brick);
+    }
+
+    move_bricks(bricks);
+
+    frame++;
+
+	//clearInterval(interval_ID);
+}
+
+function move_bricks(bricks) {
+	for(var i = 0; i < bricks.length ;i++) {
+		bricks[i].x -= brick_move_speed;
+	}
 }

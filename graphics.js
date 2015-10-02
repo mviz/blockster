@@ -20,8 +20,6 @@ function draw_bricks(bricks){
     for (var i = 0; i < bricks.length; i++) {
     	var brick = bricks[i];
 
-    	console.log(brick);
-
         context.beginPath();
         context.rect(brick.x, brick.y , brick.width, BLOCK_HEIGHT);
         context.fillStyle = block_color;

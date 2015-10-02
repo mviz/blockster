@@ -16,11 +16,11 @@ function draw_avatar(player) {
     context.closePath();
 }
 
-function draw_bricks(bricks){
-    for (var i = 0; i < bricks.length; i++) {
-    	var brick = bricks[i];
+function draw_blocks(blocks){
+    for (var i = 0; i < blocks.length; i++) {
+    	var block = blocks[i];
         context.beginPath();
-        context.rect(brick.x, brick.y , brick.width, BLOCK_HEIGHT);
+        context.rect(block.x, block.y , block.width, BLOCK_HEIGHT);
         context.fillStyle = block_color;
         context.fill();
         context.closePath();

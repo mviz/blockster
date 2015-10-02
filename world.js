@@ -10,12 +10,11 @@ var PLAYER_HEIGHT = 10;
 var frame = 0;
 var player = {'x' : 0, 'y' : 0, 'velocity_y' : 0};
 
-var interval_ID = setInterval(worldLoop, 16);
+var interval_ID = setInterval(worldLoop, 1/FRAME_RATE);
 
 function worldLoop(){
     apply_physics(player);
     draw_scene();
-    draw_bricks(player);
+    draw_bricks();
     draw_avatar(player);
-
 }

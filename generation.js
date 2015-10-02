@@ -1,20 +1,19 @@
 
 function init_generation() {
-	blocks = [];
+	var blocks = [];
 
-	num_blocks = 20;
+	var num_blocks = 20;
 
-	for(int i = 0; i < num_blocks; i++) {
-		blocks[] = {'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
+	for(i = 0; i < num_blocks; i++) {
+		blocks.push({'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
 					'x' : Math.random() * canvas.width, 
-					'y' : Math.random() * canvas.height};
-
+					'y' : Math.random() * canvas.height);
 	}
 
 	return blocks;
 }
 
-next_block_frame = 0;
+var next_block_frame = 0;
 
 function generate_next_block() {
 	

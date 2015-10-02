@@ -3,15 +3,14 @@ var context = canvas.getContext("2d");
 var avatar_color = "#EBE395";
 var block_color = "#08576B";
 
-function draw() {
+function draw_scene() {
     context.clearRect(0,0, canvas.width, canvas.height);
-    draw_avatar();
-    draw_bricks();
+
 }
 
 function draw_avatar(player) {
     context.beginPath();
-    context.rect(30, player.y , player.width, player.height);
+    context.rect(30, player.y , PLAYER_HEIGHT, PLAYER_WIDTH);
     context.fillStyle = avatar_color;
     context.fill();
     context.closePath();

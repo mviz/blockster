@@ -21,6 +21,7 @@ function reset() {
     player.y = 0;
     playervy = 1;
     player.isGrounded = false;
+    frame = 0;
 
     blocks = init_blocks();
 }
@@ -37,7 +38,7 @@ function worldLoop(){
     draw_blocks(blocks);
     draw_avatar(player);
 
-    new_block = generate_next_block(frame);
+    new_block = generate_next_block(frame, blocks);
 
     if(new_block) {
     	blocks.push(new_block);

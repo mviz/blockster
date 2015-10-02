@@ -1,0 +1,6 @@
+
+
+
+function initGeneration() {
+	blocks = []
+}

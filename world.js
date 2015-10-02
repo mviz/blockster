@@ -16,5 +16,6 @@ function worldLoop(){
     apply_physics(player);
     draw_scene();
     draw_bricks();
+    draw_bricks(bricks);
     draw_avatar(player);
 }

@@ -15,7 +15,7 @@ var interval_ID = setInterval(worldLoop, 16);
 function worldLoop(){
     apply_physics(player);
     draw_scene();
-    draw_bricks(player);
+    draw_bricks(bricks);
     draw_avatar(player);
 
 }

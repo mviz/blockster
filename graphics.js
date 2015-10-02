@@ -10,7 +10,7 @@ function draw_scene() {
 
 function draw_avatar(player) {
     context.beginPath();
-    context.rect(30, player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
+    context.rect(30 , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
     context.fillStyle = AVATAR_COLOR;
     context.fill();
     context.closePath();
@@ -19,9 +19,6 @@ function draw_avatar(player) {
 function draw_bricks(bricks){
     for (var i = 0; i < bricks.length; i++) {
     	var brick = bricks[i];
-
-    	console.log(brick);
-
         context.beginPath();
         context.rect(brick.x, brick.y , brick.width, BLOCK_HEIGHT);
         context.fillStyle = block_color;

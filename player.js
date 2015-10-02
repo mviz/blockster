@@ -1,9 +1,8 @@
 
-var GRAVITY = -9.81;
+var GRAVITY = +1;
 
 
 function apply_physics(player) {
-
-	player.velocityY += GRAVITY;
-	player.y  += player.velocity_y;
+	player.vy += GRAVITY;
+	player.y  += player.vy;
 }

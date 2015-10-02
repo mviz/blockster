@@ -18,7 +18,7 @@ function draw_avatar(player) {
 }
 
 function draw_bricks(){
-    for (var i = 0; i < brickList.length; i++){
+    for (var i = 0; i < bricks.length; i++){
         var brick = brickList[i];
         context.beginPath();
         context.rect(brick.x, brick.y , brick.width, brick.height);

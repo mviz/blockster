@@ -1,6 +1,6 @@
 var MAGIC_NUMBER = 200;
 
-function init_generation() {
+function init_blocks() {
 	var blocks = [];
 
 	var num_blocks = 10;
@@ -26,10 +26,7 @@ function generate_next_block(frame) {
 
 		return {'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
 					'x' : canvas.width + 100, 
-					'y' : Math.random() * canvas.height};
-
-
-		
+					'y' : Math.random() * canvas.height};		
 
 	} 
 

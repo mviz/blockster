@@ -21,3 +21,14 @@ function keyDownHandler(e) {
         }
     }
 }
+
+function is_dead(player) {
+
+	if(player.y > canvas.height + 20) {
+		return true;
+
+		console.log("dead");
+	}
+
+	return false;
+}

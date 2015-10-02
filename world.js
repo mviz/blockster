@@ -1,6 +1,6 @@
 //{'width' : 100, 'x' : 10, 'y' : 10}
 
-var blocks = init_generation();
+var blocks = init_blocks();
 var BLOCK_WIDTH_MAX = 100;
 var BLOCK_WIDTH_MIN = 50;
 var BLOCK_HEIGHT = 10;
@@ -16,7 +16,21 @@ var block_move_speed = 1;
 document.addEventListener("keydown", keyDownHandler, false);
 
 
+function reset() {
+    block_move_speed = 1;    
+    player.y = 0;
+    playervy = 1;
+    player.isGrounded = false;
+
+    blocks = init_blocks();
+}
+
 function worldLoop(){
+
+    if(is_dead(player)){
+        reset();
+    }
+
     apply_physics(player);
     top_collision(player);
     draw_scene();
@@ -38,4 +52,8 @@ function move_blocks(blocks) {
 	for(var i = 0; i < blocks.length ;i++) {
 		blocks[i].x -= block_move_speed;
 	}
+
 }
+
+
+

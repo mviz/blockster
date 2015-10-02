@@ -32,8 +32,9 @@ function worldLoop(){
     if(is_dead(player)){
         reset();
     }
+    console.log(block_move_speed);
 
-    block_move_speed = Math.abs(Math.sin(frame/50)) * 3;
+    block_move_speed = (Math.exp(frame/20000));     //Math.abs(Math.sin(frame/50)) * 3;
     apply_physics(player);
     top_collision(player);
     bottom_collision(player);

@@ -6,3 +6,5 @@ var BLOCK_WIDTH_MIN = 50;
 var FRAME_RATE = 60;
 
 var frame = 0;
+
+player = {'x' : 0, 'y' : 0, 'velocityY' : 0}

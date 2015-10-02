@@ -1,6 +1,15 @@
 //{'width' : 100, 'x' : 10, 'y' : 10}
 
+var brickList = init_generation();
+var BLOCK_WIDTH_MAX = 100;
+var BLOCK_WIDTH_MIN = 50;
+var BLOCK_HEIGHT = 10;
+var FRAME_RATE = 60;
+var frame = 0;
 
-//var interval_ID = set_interval(draw, 8);
+var interval_ID = setInterval(worldLoop, 16);
 
-var brickList = 
+function worldLoop(){
+    applyPhysics();
+    draw();
+}

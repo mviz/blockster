@@ -9,10 +9,21 @@ function draw() {
     draw_bricks();
 }
 
-function draw_avatar() {
-
+function draw_avatar(player) {
+    context.beginPath();
+    context.rect(30, player.y , player.width, player.height);
+    context.fillStyle = avatar_color;
+    context.fill();
+    context.closePath();
 }
 
 function draw_bricks(){
-
+    for (var i = 0; i < brickList.length; i++){
+        var brick = brickList[i];
+        context.beginPath();
+        context.rect(brick.x, brick.y , brick.width, brick.height);
+        context.fillStyle = block_color;
+        context.fill();
+        context.closePath();
+    }
 }

@@ -18,8 +18,10 @@ function draw_avatar(player) {
 }
 
 function draw_bricks(bricks){
-    for (var brick in bricks) {
+ 	console.log(bricks);
 
+    for (var brick in bricks) {
+    	console.log(brick);
         context.beginPath();
         context.rect(brick.x, brick.y , brick.width, BRICK_HEIGHT);
         context.fillStyle = block_color;

@@ -5,7 +5,7 @@ function init_generation() {
 	var num_blocks = 20;
 
 	for(i = 0; i < num_blocks; i++) {
-		blocks.push({'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
+		blocks.push({'width' : (Math.random() * 100) + 100, 
 					'x' : Math.random() * canvas.width, 
 					'y' : Math.random() * canvas.height
 		});

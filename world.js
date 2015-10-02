@@ -17,5 +17,6 @@ function worldLoop(){
     draw_scene();
     draw_bricks(bricks);
     draw_avatar(player);
+    clearInterval(interval_ID);
 
 }

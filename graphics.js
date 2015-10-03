@@ -10,7 +10,7 @@ function draw_scene() {
 
 function draw_avatar(player) {
     context.beginPath();
-    context.rect(30 , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
+    context.rect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
     context.fillStyle = AVATAR_COLOR;
     context.fill();
     context.closePath();

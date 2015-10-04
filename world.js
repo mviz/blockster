@@ -33,6 +33,7 @@ function worldLoop(){
 
     apply_physics(player);
     top_collision(player);
+    bottom_collision(player);
     draw_scene();
     draw_blocks(blocks);
     draw_avatar(player);

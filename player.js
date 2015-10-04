@@ -16,7 +16,7 @@ function keyDownHandler(e) {
         	player.canDoubleJump = true
         }
         else if (player.canDoubleJump){
-        	player.vy = -1;
+        	player.vy = -0.7;
         	player.canDoubleJump = false;
         }
     }

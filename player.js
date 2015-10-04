@@ -11,9 +11,13 @@ function apply_physics(player) {
 function keyDownHandler(e) {
     if (e.keyCode == 32) {
         e.preventDefault();
-        player.isJumping = true
         if(player.isGrounded){
         	player.vy = -1;
+        	player.canDoubleJump = true
+        }
+        else if (player.canDoubleJump){
+        	player.vy = -1;
+        	player.canDoubleJump = false;
         }
     }
 }

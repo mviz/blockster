@@ -7,7 +7,7 @@ function top_collision(player) {
 		if (player.y + PLAYER_HEIGHT > block.y &&
 			player.y + PLAYER_HEIGHT <= block.y + BLOCK_HEIGHT &&
 			PLAYER_X + PLAYER_WIDTH > block.x  &&
-			PLAYER_X + PLAYER_WIDTH <= block.x + block.width
+			PLAYER_X <= block.x + block.width
 			){
 
 			player.y = block.y - PLAYER_HEIGHT;

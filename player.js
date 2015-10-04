@@ -1,21 +1,17 @@
-var MAX_GRAVITY = 2;
 var GRAVITY = +0.01;
+var MAX_VEL = 3;
 
-
-function apply_physics(player, frame) {
-	if (frame % 5 == 0){
-		player.vy += GRAVITY
+function apply_physics(player) {
+	if(player.vy < 1){
+		player.vy += GRAVITY;
 	}
-	// if(player.vy <= MAX_GRAVITY){
-	// 	player.vy += GRAVITY;
-	// }
-	player.y  += Math.floor(player.vy);
+	player.y += player.vy
 }
 
 function keyDownHandler(e) {
-	console.log(player.vy)
     if (e.keyCode == 32) {
         e.preventDefault();
+        player.isJumping = true
         if(player.isGrounded){
         	player.vy = -1;
         }
@@ -25,9 +21,8 @@ function keyDownHandler(e) {
 function is_dead(player) {
 
 	if(player.y > canvas.height + 20) {
+		player.vy = 0;
 		return true;
-
-		console.log("dead");
 	}
 
 	return false;

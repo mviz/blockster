@@ -15,9 +15,31 @@ var MIN_LINE_SPEED = .1;
 var MIN_LINE_WIDTH = 100;
 var MAX_LINE_WIDTH = 150;
 
+var cur_color = "#000000";
 
 function draw_scene() {
-    context.clearRect(0,0, canvas.width, canvas.height);
+    if(MATT_YOU_DIDNT_SEE_THIS) {
+        if(frame % 80 == 0) {
+            //Taken from http://stackoverflow.com/a/1484514
+
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+
+            cur_color = color;
+        }
+
+        context.rect(0,0, canvas.width, canvas.height);
+        
+        context.fillStyle = cur_color;
+        context.fill();
+
+    } else {
+        context.clearRect(0,0, canvas.width, canvas.height);    
+    }
+    
 }
 
 function draw_avatar(player) {

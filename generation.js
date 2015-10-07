@@ -1,5 +1,5 @@
 var MIN_WAIT_FOR_BLOCK = 50;
-var MAX_WAIT_FOR_BLOCK = 200;
+var MAX_WAIT_FOR_BLOCK = 175;
 
 function init_blocks() {
 	

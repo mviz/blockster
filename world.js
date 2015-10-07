@@ -2,6 +2,8 @@ var BLOCK_WIDTH_MAX = 150;
 var BLOCK_WIDTH_MIN = 100;
 var BLOCK_HEIGHT = 10;
 
+var MATT_YOU_DIDNT_SEE_THIS = false;
+
 var FRAME_RATE = 60;
 
 var PLAYER_WIDTH = 8;
@@ -31,6 +33,7 @@ function init() {
     playing = true;
 
     document.addEventListener("keydown", key_down_handler, false);
+    document.addEventListener("keydown", matt_ignore_this, false);
     document.removeEventListener("keydown", end_screen_handler, false)
 
     blocks = init_blocks();
@@ -60,7 +63,12 @@ function world_loop(){
         return;
     }
 
-    block_move_speed = (Math.exp(frame/20000));     //Math.abs(Math.sin(frame/50)) * 3;
+    if(MATT_YOU_DIDNT_SEE_THIS) {
+        block_move_speed = Math.abs(Math.sin(frame/50)) * 3;
+    } else {
+        block_move_speed = (Math.exp(frame/20000));
+    }
+
     apply_physics(player);
     top_collision(player);
     bottom_collision(player);
@@ -96,5 +104,11 @@ function end_screen_handler(event) {
     if(event.keyCode == SPACE_BAR){
         event.preventDefault();
         init();
+    }
+}
+function matt_ignore_this (event) {
+    if(event.keyCode == 16){
+        MATT_YOU_DIDNT_SEE_THIS = true;
+        canvas.style.transform = "scaleY(-1)"; 
     }
 }

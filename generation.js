@@ -8,10 +8,8 @@ function init_blocks() {
 
 	while(blocks.length < 10) {
 	
-		var block = {'width' : (Math.random() * 50) + 70, 
-					'x' : Math.random() * canvas.width, 
-					'y' : Math.random() * canvas.height
-		};
+		var block = create_block();
+		block.x = Math.random() * canvas.width;
 	
 		if(!is_overlapping_any(block, blocks)){
 			blocks.push(block);	
@@ -73,9 +71,7 @@ function generate_next_block(frame, blocks) {
 		var block;
 
 		do {
-			block = {'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
-					'x' : canvas.width + 100, 
-					'y' : Math.random() * canvas.height};
+			block = create_block();
 		} while(is_overlapping_any(block, blocks));
 
 		return block;		
@@ -83,4 +79,9 @@ function generate_next_block(frame, blocks) {
 	} 
 
 	return null;
+}
+ function create_block() {
+ 	return {'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
+			'x' : canvas.width + 100, 
+			'y' : Math.random() * canvas.height};
 }

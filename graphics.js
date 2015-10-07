@@ -84,11 +84,10 @@ function init_lines() {
         line.x = Math.random() * canvas.width;
         lines.push(line);
     }
-
-    console.log(lines)
 }
 
 //TODO: remove all the magic numbers
+//TODO: create random range function
 function create_line() {
     return {"stroke_width" : Math.random() * 2 + 1, "speed" : Math.random() * .25 + 1, 
             "x" : -150, "y" : Math.random() * canvas.height, 

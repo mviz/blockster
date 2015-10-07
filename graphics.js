@@ -36,33 +36,42 @@ function draw_boost(player) {
     //     e
     if(player.vy < 0){
         var path = new Path2D();
-        var a = {'x': PLAYER_X, 'y': player.y + PLAYER_HEIGHT};
-        var b = {'x': PLAYER_X + PLAYER_WIDTH, 'y': player.y + PLAYER_HEIGHT};
-        var c = {'x': PLAYER_X + Math.floor(PLAYER_WIDTH/4), 'y': player.y + PLAYER_HEIGHT + 7};
-        var d = {'x': PLAYER_X + Math.floor(PLAYER_WIDTH*(3/4)), 'y': player.y + PLAYER_HEIGHT + 7};
-        var e = {'x': PLAYER_X + Math.floor(PLAYER_WIDTH/2), 'y': player.y + PLAYER_HEIGHT + 10};
+
+        var a = {'x': 0,                              'y': PLAYER_HEIGHT};
+        var b = {'x': PLAYER_WIDTH,                   'y': PLAYER_HEIGHT};
+        var c = {'x': Math.floor(PLAYER_WIDTH/4),     'y': PLAYER_HEIGHT + 7};
+        var d = {'x': Math.floor(PLAYER_WIDTH*(3/4)), 'y': PLAYER_HEIGHT + 7};
+        var e = {'x': Math.floor(PLAYER_WIDTH/2),     'y': PLAYER_HEIGHT + 10};
+        
+        context.save();
+
         context.beginPath();
+        context.translate(PLAYER_X, player.y);
 
-        // body
-        path.moveTo(a.x, a.y);
-        path.lineTo(b.x, b.y);
-        path.lineTo(d.x, d.y);
-        path.lineTo(c.x, c.y);
-        path.lineTo(a.x, a.y);
-        context.fillStyle = BOOST_COLOR;
-        context.fill(path);
+        var body = [a,b,d,c,a];
+        var tip = [c,e,d,c];
 
-        // tip
-        path.moveTo(c.x, c.y);
-        path.lineTo(e.x, e.y);
-        path.lineTo(d.x, d.y);
-        path.lineTo(c.x, c.y);
-        context.fillStyle = HIGHLIGHT_COLOR;
-        context.fill(path);
+        draw_path(body);
 
-        context.closePath();
+        context.strokeStyle = BOOST_COLOR;
+        context.stroke();
+
+
+        draw_path(tip);
+        
+        context.strokeStyle = HIGHLIGHT_COLOR;
+        context.stroke();
+
+        context.restore();
     }
 }
+
+function draw_path(path) {
+    for(i = 0; i < path.length; i++){
+        context.lineTo(path[i].x, path[i].y);
+    }
+}
+
 
 function draw_blocks(blocks){
     for (var i = 0; i < blocks.length; i++) {
@@ -132,8 +141,6 @@ function init_lines() {
     }
 }
 
-//TODO: remove all the magic numbers
-//TODO: create random range function
 function create_line() {
     return {"stroke_width" : randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH), 
             "speed" : randomRange(MIN_LINE_SPEED, MAX_LINE_SPEED), 
@@ -141,5 +148,3 @@ function create_line() {
             "y" : Math.random() * canvas.height, 
             "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
 }
-
-

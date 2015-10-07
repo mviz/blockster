@@ -1,8 +1,3 @@
-//{'width' : 100, 'x' : 10, 'y' : 10}
-
-//TODO: implement high score with cookies
-
-
 var BLOCK_WIDTH_MAX = 150;
 var BLOCK_WIDTH_MIN = 100;
 var BLOCK_HEIGHT = 10;
@@ -46,6 +41,7 @@ function init() {
     });
 }
 
+//TODO: implement high score with cookies
 function get_high_score() {
     return document.cookie;
 }

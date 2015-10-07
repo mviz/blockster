@@ -1,4 +1,5 @@
-var MAGIC_NUMBER = 200;
+var MIN_WAIT_FOR_BLOCK = 50;
+var MAX_WAIT_FOR_BLOCK = 200;
 
 function init_blocks() {
 	
@@ -20,7 +21,29 @@ function init_blocks() {
 }
 
 var next_block_frame = 0;
+function generate_next_block(frame, blocks) {
+	if(frame >= next_block_frame) {
 
+		next_block_frame = frame + randomRange(MIN_WAIT_FOR_BLOCK, MAX_WAIT_FOR_BLOCK);
+		var block;
+
+		do {
+			block = create_block();
+		} while(is_overlapping_any(block, blocks));
+
+		return block;		
+
+	} 
+
+	return null;
+}
+
+
+function create_block() {
+	return {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
+			'x' : canvas.width + 100, 
+			'y' : Math.random() * canvas.height};
+}
 
 /*
 	Blocks can't overlap.
@@ -61,27 +84,3 @@ console.log(is_overlapping(block1, block2));
 console.log(is_overlapping(block1, block3));
 console.log(is_overlapping(block1, block4));
 console.log(is_overlapping(block1, block5));*/
-
-function generate_next_block(frame, blocks) {
-
-
-	if(frame >= next_block_frame) {
-
-		next_block_frame = frame + Math.random() * MAGIC_NUMBER;
-		var block;
-
-		do {
-			block = create_block();
-		} while(is_overlapping_any(block, blocks));
-
-		return block;		
-
-	} 
-
-	return null;
-}
- function create_block() {
- 	return {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
-			'x' : canvas.width + 100, 
-			'y' : Math.random() * canvas.height};
-}

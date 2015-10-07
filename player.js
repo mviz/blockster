@@ -8,13 +8,13 @@ function apply_physics(player) {
 	player.y += player.vy
 }
 
-function key_down_handler(e) {
-    if (e.keyCode == SPACE_BAR && playing) {
-        e.preventDefault();
+function key_down_handler(event) {
+    if (event.keyCode == SPACE_BAR && playing) {
+        event.preventDefault();
+        
         if(player.hasJump){
         	player.vy = -1;
-        }
-        else if (player.hasBoost){
+        } else if (player.hasBoost){
         	player.vy = -0.7;
         	player.hasBoost = false;
         }
@@ -22,11 +22,5 @@ function key_down_handler(e) {
 }
 
 function is_dead(player) {
-
-	if(player.y > canvas.height + 20) {
-		player.vy = 0;
-		return true;
-	}
-
-	return false;
+	return player.y > canvas.height + 20;
 }

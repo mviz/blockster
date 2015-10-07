@@ -59,10 +59,13 @@ function world_loop(){
     apply_physics(player);
     top_collision(player);
     bottom_collision(player);
+    
     draw_scene();
+    draw_background();
     draw_blocks(blocks);
     draw_avatar(player);
     draw_score(frame);
+
 
     new_block = generate_next_block(frame, blocks);
 

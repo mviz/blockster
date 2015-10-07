@@ -1,7 +1,7 @@
 
 
 function top_collision(player) {
-	player.isGrounded = false;
+	player.hasJump = false;
 	for(var i = 0; i < blocks.length; i++){
 		block = blocks[i];
 		if (player.y + PLAYER_HEIGHT > block.y &&
@@ -11,8 +11,8 @@ function top_collision(player) {
 			){
 
 			player.y = block.y - PLAYER_HEIGHT;
-			player.isGrounded = true;
-			player.canDoubleJump = false;
+			player.hasJump = true;
+			player.hasBoost = true;
 			break;
 		}
 	}

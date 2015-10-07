@@ -11,13 +11,12 @@ function apply_physics(player) {
 function key_down_handler(e) {
     if (e.keyCode == SPACE_BAR && playing) {
         e.preventDefault();
-        if(player.isGrounded){
+        if(player.hasJump){
         	player.vy = -1;
-        	player.canDoubleJump = true
         }
-        else if (player.canDoubleJump){
+        else if (player.hasBoost){
         	player.vy = -0.7;
-        	player.canDoubleJump = false;
+        	player.hasBoost = false;
         }
     }
 }

@@ -1,6 +1,8 @@
 //{'width' : 100, 'x' : 10, 'y' : 10}
 
-var blocks = init_blocks();
+//TODO: implement high score with cookies
+
+
 var BLOCK_WIDTH_MAX = 100;
 var BLOCK_WIDTH_MIN = 50;
 var BLOCK_HEIGHT = 10;
@@ -8,31 +10,50 @@ var FRAME_RATE = 60;
 var PLAYER_WIDTH = 8;
 var PLAYER_HEIGHT = 16;
 var PLAYER_X = 50;
-var frame = 0;
-var player = {'x' : 0, 'y' : 0, 'vy' : 1, 'isGrounded' : false, 'canDoubleJump' : true};
+var SPACE_BAR = 32;
+var blocks;
+var frame;
+var player;
+var interval_ID;
+var block_move_speed;
+var playing;
 
-var interval_ID = setInterval(worldLoop, 1/FRAME_RATE);
-var block_move_speed = 1;
-document.addEventListener("keydown", keyDownHandler, false);
+init();
 
 
-function reset() {
+
+function init() {
     block_move_speed = 1;    
-    player.y = 0;
-    playervy = 1;
-    player.isGrounded = false;
+    player = {'x' : 0, 'y' : 0, 'vy' : 1, 'isGrounded' : false, 'canDoubleJump' : true};    
     frame = 0;
     next_block_frame = 0;
+    interval_ID = setInterval(world_loop, 1/FRAME_RATE);
+
+    playing = true;
+
+    document.addEventListener("keydown", key_down_handler, false);
+    document.removeEventListener("keydown", end_screen_handler, false)
 
     blocks = init_blocks();
 }
 
-function worldLoop(){
+function get_high_score() {
+    return document.cookie;
+}
+
+function world_loop(){
 
     if(is_dead(player)){
-        reset();
+        draw_scene();
+        draw_end_scene(frame);
+
+        document.addEventListener("keydown", end_screen_handler, false)
+        playing = false;
+
+        clearInterval(interval_ID);
+
+        return;
     }
-    console.log(block_move_speed);
 
     block_move_speed = (Math.exp(frame/20000));     //Math.abs(Math.sin(frame/50)) * 3;
     apply_physics(player);
@@ -41,6 +62,7 @@ function worldLoop(){
     draw_scene();
     draw_blocks(blocks);
     draw_avatar(player);
+    draw_score(frame);
 
     new_block = generate_next_block(frame, blocks);
 
@@ -60,5 +82,9 @@ function move_blocks(blocks) {
 
 }
 
-
-
+function end_screen_handler(event) {
+    if(event.keyCode == SPACE_BAR){
+        event.preventDefault();
+        init();
+    }
+}

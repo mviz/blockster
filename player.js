@@ -8,8 +8,8 @@ function apply_physics(player) {
 	player.y += player.vy
 }
 
-function keyDownHandler(e) {
-    if (e.keyCode == 32) {
+function key_down_handler(e) {
+    if (e.keyCode == SPACE_BAR && playing) {
         e.preventDefault();
         if(player.isGrounded){
         	player.vy = -1;

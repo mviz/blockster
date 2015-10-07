@@ -26,3 +26,22 @@ function draw_blocks(blocks){
         context.closePath();
     }
 }
+
+function draw_score(score) {
+    context.fillStyle = AVATAR_COLOR;
+    context.font = "30px Arial";
+    context.textAlign = "right";
+    context.fillText(score, canvas.width, 30);
+}
+
+function draw_end_scene(score) {
+    context.fillStyle = "#000000";
+
+    context.font = "30px Arial";
+    context.textAlign = "center";
+    context.fillText(score, canvas.width/2, canvas.height/2);
+
+    context.font = "30px Arial";
+    context.textAlign = "center";
+    context.fillText("Press space to continue", canvas.width/2, canvas.height/2 + 30);
+}

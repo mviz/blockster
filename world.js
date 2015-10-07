@@ -18,6 +18,7 @@ var player;
 var interval_ID;
 var block_move_speed;
 var playing;
+var trail; 
 
 init();
 
@@ -37,6 +38,7 @@ function init() {
     document.removeEventListener("keydown", end_screen_handler, false)
 
     blocks = init_blocks();
+    trail = init_trail();
 
     blocks.push({'width' : BLOCK_WIDTH_MAX * 2, 
                  'x' : 0, 
@@ -70,6 +72,7 @@ function world_loop(){
     }
 
     apply_physics(player);
+    update_trail(frame, player, trail);
     top_collision(player);
     bottom_collision(player);
     
@@ -78,6 +81,7 @@ function world_loop(){
     draw_blocks(blocks);
     draw_avatar(player);
     draw_boost(player);
+    draw_trail(trail, frame);
 
     draw_score(frame);
 

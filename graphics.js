@@ -1,10 +1,10 @@
 var canvas = document.getElementById("gameCanvas");
 var context = canvas.getContext("2d");
-var AVATAR_COLOR = "#3DB845";
-var block_color = "#00A3FB";
-var LINE_COLOR = "#AAAAAA";
-var BOOST_COLOR = "#BF4040";
-var HIGHLIGHT_COLOR = "#FFCF70";
+var AVATAR_COLOR = "#FFE64D";
+var block_color = "#6FC3DF";
+var LINE_COLOR = "#E6FFFF";
+var BOOST_COLOR = "#DF740C";
+var HIGHLIGHT_COLOR = "#DF740C";
 var BLOCK_HEIGHT = 40;
 var NUM_LINES = 20;
 
@@ -151,6 +151,15 @@ function draw_background() {
 
 }
 
+function draw_trail(trail, frame){
+    for(var i = 0; i < PLAYER_X; i++){
+        context.beginPath();
+        context.rect(i, trail[(frame + i) % PLAYER_X] , 1, 1);
+        context.fillStyle = LINE_COLOR;
+        context.fill();
+    }
+}
+
 function init_lines() {
     for(i = 0; i < NUM_LINES; i++){
         var line = create_line();
@@ -169,4 +178,18 @@ function create_line() {
             "x" : -150, 
             "y" : Math.random() * canvas.height, 
             "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
+}
+
+function init_trail() {
+    var trail = [];
+    for(var i = 0; i < PLAYER_X; i++){
+        trail[i] =  0;
+    }
+
+    return trail;
+
+}
+
+function update_trail(frame, player, trail) {
+    trail[frame % PLAYER_X] = player.y + PLAYER_HEIGHT/2;
 }

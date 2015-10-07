@@ -160,8 +160,12 @@ function init_lines() {
 }
 
 function create_line() {
-    return {"stroke_width" : randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH), 
-            "speed" : randomRange(MIN_LINE_SPEED, MAX_LINE_SPEED), 
+    var stroke_width = randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
+    var scaled = (stroke_width - 0.4)/1.5;
+    var delta = .1;
+    var line_speed = randomRange(scaled - delta, scaled + delta);
+    return {"stroke_width" : stroke_width, 
+            "speed" : line_speed, 
             "x" : -150, 
             "y" : Math.random() * canvas.height, 
             "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};

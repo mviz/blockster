@@ -24,7 +24,7 @@ init();
 
 function init() {
     block_move_speed = 1;    
-    player = {'x' : 0, 'y' : 0, 'vy' : 1, 'isGrounded' : false, 'canDoubleJump' : true};    
+    player = {'x' : 0, 'y' : 0, 'vy' : 1, 'hasJump' : false, 'hasBoost' : true};    
     frame = 0;
     next_block_frame = 0;
     interval_ID = setInterval(world_loop, 1/FRAME_RATE);

@@ -81,7 +81,7 @@ function generate_next_block(frame, blocks) {
 	return null;
 }
  function create_block() {
- 	return {'width' : (Math.random() * BLOCK_WIDTH_MAX) + BLOCK_WIDTH_MAX, 
+ 	return {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
 			'x' : canvas.width + 100, 
 			'y' : Math.random() * canvas.height};
 }

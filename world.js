@@ -3,15 +3,18 @@
 //TODO: implement high score with cookies
 
 
-var BLOCK_WIDTH_MAX = 100;
-var BLOCK_WIDTH_MIN = 50;
+var BLOCK_WIDTH_MAX = 150;
+var BLOCK_WIDTH_MIN = 100;
 var BLOCK_HEIGHT = 10;
+
 var FRAME_RATE = 60;
+
 var PLAYER_WIDTH = 8;
 var PLAYER_HEIGHT = 16;
 var PLAYER_X = 50;
 
 var SPACE_BAR = 32;
+
 var blocks;
 var frame;
 var player;

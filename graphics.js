@@ -8,6 +8,14 @@ var HIGHLIGHT_COLOR = "#FFCF70";
 var BLOCK_HEIGHT = 40;
 var NUM_LINES = 20;
 
+var MAX_LINE_STROKE_WIDTH = 3;
+var MIN_LINE_STROKE_WIDTH = 1;
+var MAX_LINE_SPEED = 1.25;
+var MIN_LINE_SPEED = 1;
+var MIN_LINE_WIDTH = 100;
+var MAX_LINE_WIDTH = 150;
+
+
 function draw_scene() {
     context.clearRect(0,0, canvas.width, canvas.height);
 }
@@ -127,9 +135,11 @@ function init_lines() {
 //TODO: remove all the magic numbers
 //TODO: create random range function
 function create_line() {
-    return {"stroke_width" : Math.random() * 2 + 1, "speed" : Math.random() * .25 + 1, 
-            "x" : -150, "y" : Math.random() * canvas.height, 
-            "width" : Math.random() * 50 + 100};
+    return {"stroke_width" : randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH), 
+            "speed" : randomRange(MIN_LINE_SPEED, MAX_LINE_SPEED), 
+            "x" : -150, 
+            "y" : Math.random() * canvas.height, 
+            "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
 }
 
 

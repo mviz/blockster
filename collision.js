@@ -27,7 +27,7 @@ function bottom_collision(player) {
 			PLAYER_X <= block.x + block.width
 			){
 			player.vy = 0;
-			player.y = block.y + BLOCK_HEIGHT;
+			player.y = block.y + BLOCK_HEIGHT + 2;
 			break;
 		}
 	}

@@ -74,14 +74,13 @@ function draw_boost(player) {
 
         draw_path(body);
 
-        context.strokeStyle = BOOST_COLOR;
-        context.stroke();
-
+        context.fillStyle = BOOST_COLOR;
+        context.fill();
 
         draw_path(tip);
         
-        context.strokeStyle = HIGHLIGHT_COLOR;
-        context.stroke();
+        context.fillStyle = HIGHLIGHT_COLOR;
+        context.fill();
 
         context.restore();
     }

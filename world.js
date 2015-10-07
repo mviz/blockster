@@ -62,6 +62,8 @@ function world_loop(){
     draw_scene();
     draw_blocks(blocks);
     draw_avatar(player);
+    draw_boost(player);
+
     draw_score(frame);
 
     new_block = generate_next_block(frame, blocks);

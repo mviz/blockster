@@ -15,6 +15,8 @@ var MIN_LINE_SPEED = .1;
 var MIN_LINE_WIDTH = 100;
 var MAX_LINE_WIDTH = 150;
 
+var MULTIPLIER_WIDTH = 10;
+
 var cur_color = "#000000";
 
 function draw_scene() {
@@ -56,8 +58,6 @@ function draw_boost(player) {
     //   c - d 
     //     e
     if(player.vy < 0){
-        var path = new Path2D();
-
         var a = {'x': 0,                              'y': PLAYER_HEIGHT};
         var b = {'x': PLAYER_WIDTH,                   'y': PLAYER_HEIGHT};
         var c = {'x': Math.floor(PLAYER_WIDTH/4),     'y': PLAYER_HEIGHT + 7};
@@ -92,6 +92,22 @@ function draw_path(path) {
     }
 }
 
+function draw_multipliers(multipliers){
+    multipliers.forEach(function (multiplier) {
+        context.save();
+
+        context.translate(multiplier.x + MULTIPLIER_WIDTH / 2, multiplier.y + MULTIPLIER_WIDTH / 2);
+        context.rotate(Math.PI / 4);
+
+        context.beginPath();
+        context.rect(-MULTIPLIER_WIDTH / 2, -MULTIPLIER_WIDTH / 2,
+                     MULTIPLIER_WIDTH, MULTIPLIER_WIDTH);
+        context.fillStyle = AVATAR_COLOR;
+        context.fill();
+
+        context.restore();
+    });
+}
 
 function draw_blocks(blocks){
     blocks.forEach(function (block) {
@@ -107,6 +123,15 @@ function draw_score(score) {
     context.font = "30px Arial";
     context.textAlign = "right";
     context.fillText(score, canvas.width, 30);
+}
+
+
+//TODO: create some visualization that indicates how long until the multiplier is reduced
+function draw_multiplier(multiplier) {
+    context.fillStyle = AVATAR_COLOR;
+    context.font = "20px Arial";
+    context.textAlign = "right";
+    context.fillText(multiplier + 'x', canvas.width, 50);
 }
 
 function draw_end_scene(score) {

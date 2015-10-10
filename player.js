@@ -8,6 +8,7 @@ function apply_physics(player) {
 	player.y += player.vy
 }
 
+//TODO: refactor this. Player context should be only in the player.
 function key_down_handler(event) {
     if (event.keyCode == SPACE_BAR && playing) {
         event.preventDefault();

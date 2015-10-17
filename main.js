@@ -1,5 +1,3 @@
-var MATT_YOU_DIDNT_SEE_THIS = false;
-
 var FRAME_RATE = 60;
 
 var MULTIPLIER_TIMEOUT = FRAME_RATE * 20; //two seconds jk
@@ -21,6 +19,8 @@ var player;
 
 init();
 
+canvas.style.transform = "scaleY(-1)"; 
+
 function init() {
     frame = 0;
     next_block_frame = 0;
@@ -34,10 +34,8 @@ function init() {
 
     document.addEventListener("keydown", key_down_handler, false);
     canvas.addEventListener("touchstart", jump, false);
-    document.addEventListener("keydown", matt_ignore_this, false);
-    
+
     canvas.removeEventListener("touchstart", play_again, false);
-    document.removeEventListener("keydown", key_down_handler, false)
 }
 
 //TODO: implement high score with cookies
@@ -50,8 +48,7 @@ function world_loop(){
     if(is_dead(world.player)){
         draw_scene();
         draw_end_scene(world.player.score);
-
-        document.addEventListener("keydown", key_down_handler, false)
+        
         canvas.addEventListener("touchstart", play_again, false)
         playing = false;
 
@@ -103,11 +100,4 @@ function play_again(event) {
     }
     
     init();
-}
-
-function matt_ignore_this (event) {
-    if(event.keyCode == 16){
-        MATT_YOU_DIDNT_SEE_THIS = true;
-        canvas.style.transform = "scaleY(-1)"; 
-    }
 }

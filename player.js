@@ -10,18 +10,29 @@ function apply_physics(player) {
 
 //TODO: refactor this. Player context should be only in the player.
 function key_down_handler(event) {
-    if (event.keyCode == SPACE_BAR && playing) {
-        event.preventDefault();
-        
-        if(player.hasJump){
-        	player.vy = -1;
-        } else if (player.hasBoost){
-        	player.vy = -0.7;
-        	player.hasBoost = false;
-        }
-    }
+    if (event.keyCode == SPACE_BAR) {
+    	if (playing) {
+        	event.preventDefault();
+        	jump();
+    	} else {
+    		play_again();
+    	}
+   	}
 }
 
 function is_dead(player) {
 	return player.y > canvas.height + 20;
+}
+
+function jump(event) {
+	if(event !== undefined) {
+		event.preventDefault();
+	}
+
+	if(world.player.hasJump){
+    	world.player.vy = -1;
+    } else if (world.player.hasBoost){
+    	world.player.vy = -0.7;
+    	world.player.hasBoost = false;
+    }
 }

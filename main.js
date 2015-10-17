@@ -33,8 +33,11 @@ function init() {
     playing = true;
 
     document.addEventListener("keydown", key_down_handler, false);
+    canvas.addEventListener("touchstart", jump, false);
     document.addEventListener("keydown", matt_ignore_this, false);
-    document.removeEventListener("keydown", end_screen_handler, false)
+    
+    canvas.removeEventListener("touchstart", play_again, false);
+    document.removeEventListener("keydown", key_down_handler, false)
 }
 
 //TODO: implement high score with cookies
@@ -48,7 +51,8 @@ function world_loop(){
         draw_scene();
         draw_end_scene(world.player.score);
 
-        document.addEventListener("keydown", end_screen_handler, false)
+        document.addEventListener("keydown", key_down_handler, false)
+        canvas.addEventListener("touchstart", play_again, false)
         playing = false;
 
         clearInterval(interval_ID);
@@ -92,11 +96,13 @@ function calculate_score(player, frame) {
     player.score += player.multiplier.value;
 }
 
-function end_screen_handler(event) {
-    if(event.keyCode == SPACE_BAR){
-        event.preventDefault();
-        init();
+function play_again(event) {
+
+    if(event !== undefined) {
+        event.preventDefault();    
     }
+    
+    init();
 }
 
 function matt_ignore_this (event) {

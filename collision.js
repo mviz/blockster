@@ -94,9 +94,3 @@ function contains(point, points) {
 
     return result;
 }
-
-
-
-
-
-

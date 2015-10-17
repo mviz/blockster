@@ -49,7 +49,7 @@ function init_blocks(world) {
 			//TODO: Maybe move this to the create_block code
 			//if(Math.random() < MULTIPLIER_PROBABILITY){
 			//	world.multipliers.push(create_multiplier(block));
-			//}
+			//1}
 		}
 	}
 

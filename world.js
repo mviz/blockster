@@ -22,11 +22,7 @@ function init_world() {
 }
 
 function world_tick(frame, world) {
-    if(MATT_YOU_DIDNT_SEE_THIS) {
-        world.block_move_speed = Math.abs(Math.sin(frame/50)) * 3;
-    } else {
-        world.block_move_speed = (Math.exp(frame/20000));
-    }
+    world.block_move_speed = (Math.exp(frame/20000));
 
 	manage_blocks(frame, world);
 }

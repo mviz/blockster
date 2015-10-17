@@ -15,6 +15,8 @@ var MIN_LINE_SPEED = .1;
 var MIN_LINE_WIDTH = 100;
 var MAX_LINE_WIDTH = 150;
 
+var MAX_MULTIPLIER_BAR_WIDTH = 100;
+var MULTIPLIER_BAR_HEIGHT = 5;
 var MULTIPLIER_WIDTH = 10;
 
 var lines;
@@ -108,13 +110,21 @@ function draw_score(score) {
     context.fillText(score, canvas.width, 30);
 }
 
+function draw_multiplier(multiplier, frame) {
 
-//TODO: create some visualization that indicates how long until the multiplier is reduced
-function draw_multiplier(multiplier) {
+    if(multiplier.value != 1){
+        var percent_left = get_multiplier_time_left(multiplier, frame)/get_total_time_for_mutliplier(multiplier);
+        var bar_width = percent_left * MAX_MULTIPLIER_BAR_WIDTH;
+
+        context.rect(canvas.width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
+        context.fillStyle = AVATAR_COLOR;
+        context.fill();
+    }
+
     context.fillStyle = AVATAR_COLOR;
     context.font = "20px Arial";
     context.textAlign = "right";
-    context.fillText(multiplier + 'x', canvas.width, 50);
+    context.fillText(multiplier.value + 'x', canvas.width, 50);
 }
 
 function draw_end_scene(score) {

@@ -73,7 +73,7 @@ function world_loop(){
     draw_boost(world.player);
 
     draw_score(world.player.score);
-    draw_multiplier(world.player.multiplier.value);
+    draw_multiplier(world.player.multiplier, frame);
 
     frame++;
 }

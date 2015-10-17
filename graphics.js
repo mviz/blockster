@@ -29,11 +29,9 @@ function draw_scene() {
     context.clearRect(0,0, canvas.width, canvas.height);       
 }
 
-function draw_avatar(player) {
-    context.beginPath();
-    context.rect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
+function draw_avatar(player) {    
     context.fillStyle = AVATAR_COLOR;
-    context.fill();
+    context.fillRect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
 }
 
 function draw_boost(player) {
@@ -43,28 +41,26 @@ function draw_boost(player) {
     //   c - d 
     //     e
     if(player.vy < 0){
-        var a = {'x': 0,                              'y': PLAYER_HEIGHT};
-        var b = {'x': PLAYER_WIDTH,                   'y': PLAYER_HEIGHT};
-        var c = {'x': Math.floor(PLAYER_WIDTH/4),     'y': PLAYER_HEIGHT + 7};
-        var d = {'x': Math.floor(PLAYER_WIDTH*(3/4)), 'y': PLAYER_HEIGHT + 7};
-        var e = {'x': Math.floor(PLAYER_WIDTH/2),     'y': PLAYER_HEIGHT + 10};
+        var a = {'x': 0,                              'y': 0};
+        var b = {'x': PLAYER_WIDTH,                   'y': 0};
+        var c = {'x': Math.floor(PLAYER_WIDTH/4),     'y': 7};
+        var d = {'x': Math.floor(PLAYER_WIDTH*(3/4)), 'y': 7};
+        var e = {'x': Math.floor(PLAYER_WIDTH/2),     'y': 10};
         
         context.save();
 
-        context.beginPath();
-        context.translate(PLAYER_X, player.y);
+        context.translate(PLAYER_X, player.y + PLAYER_HEIGHT);
 
         var body = [a,b,d,c,a];
         var tip = [c,e,d,c];
 
-        draw_path(body);
-
         context.fillStyle = BOOST_COLOR;
+        draw_path(body);
         context.fill();
 
-        draw_path(tip);
-        
+
         context.fillStyle = HIGHLIGHT_COLOR;
+        draw_path(tip);
         context.fill();
 
         context.restore();
@@ -72,7 +68,8 @@ function draw_boost(player) {
 }
 
 function draw_path(path) {
-    for(i = 0; i < path.length; i++){
+    context.moveTo(path[0].x, path[0].y);
+    for(i = 1; i < path.length; i++){
         context.lineTo(path[i].x, path[i].y);
     }
 }
@@ -84,22 +81,21 @@ function draw_multipliers(multipliers){
         context.translate(multiplier.x + MULTIPLIER_WIDTH / 2, multiplier.y + MULTIPLIER_WIDTH / 2);
         context.rotate(Math.PI / 4);
 
-        context.beginPath();
-        context.rect(-MULTIPLIER_WIDTH / 2, -MULTIPLIER_WIDTH / 2,
-                     MULTIPLIER_WIDTH, MULTIPLIER_WIDTH);
         context.fillStyle = AVATAR_COLOR;
-        context.fill();
 
+        context.fillRect(-MULTIPLIER_WIDTH / 2, -MULTIPLIER_WIDTH / 2,
+                     MULTIPLIER_WIDTH, MULTIPLIER_WIDTH);
+        
         context.restore();
     });
 }
 
 function draw_blocks(blocks){
     blocks.forEach(function (block) {
-        context.beginPath();
-        context.rect(block.x, block.y , block.width, BLOCK_HEIGHT);
+        //context.beginPath();
         context.fillStyle = block_color;
-        context.fill();
+        context.fillRect(block.x, block.y , block.width, BLOCK_HEIGHT);
+        //context.fill();
     });
 }
 
@@ -116,9 +112,9 @@ function draw_multiplier(multiplier, frame) {
         var percent_left = get_multiplier_time_left(multiplier, frame)/get_total_time_for_mutliplier(multiplier);
         var bar_width = percent_left * MAX_MULTIPLIER_BAR_WIDTH;
 
-        context.rect(canvas.width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
         context.fillStyle = AVATAR_COLOR;
-        context.fill();
+        context.fillRect(canvas.width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
+        //context.fill();
     }
 
     context.fillStyle = AVATAR_COLOR;

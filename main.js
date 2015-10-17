@@ -1,7 +1,5 @@
 var FRAME_RATE = 60;
 
-var MULTIPLIER_TIMEOUT = FRAME_RATE * 20; //two seconds jk
-
 var PLAYER_WIDTH = 8;
 var PLAYER_HEIGHT = 16;
 var PLAYER_X = 50;
@@ -14,15 +12,12 @@ var frame;
 var playing;
 var multiplier;
 
-//TODO: this is a hack atm
-var player;
-
 init();
 
 function init() {
     frame = 0;
     next_block_frame = 0;
-    interval_ID = setInterval(world_loop, 1/FRAME_RATE);
+    interval_ID = setInterval(world_loop, 1/(FRAME_RATE * 1000));
 
     world = init_world();
 
@@ -31,9 +26,10 @@ function init() {
     playing = true;
 
     document.addEventListener("keydown", key_down_handler, false);
-    canvas.addEventListener("touchstart", jump, false);
-    
+    canvas.addEventListener("touchstart", jump, false);    
     canvas.removeEventListener("touchstart", play_again, false);
+
+    init_graphics();
 }
 
 //TODO: implement high score with cookies
@@ -62,11 +58,11 @@ function world_loop(){
     top_collision(world.player, world.blocks);
     bottom_collision(world.player, world.blocks);
 
+        calculate_score(world.player, frame);
+
+
     multiplier_collision(world.player, world.multipliers);
     
-
-    //TODO: this is ugly
-    calculate_score(world.player, frame);
 
     draw_scene();
     draw_background();
@@ -83,8 +79,7 @@ function world_loop(){
 }
 
 function calculate_score(player, frame) {
-    //TODO: could use a changing function. higher mult = lasts less time.
-    if(player.multiplier.value > 1 && frame - player.multiplier.last_pickup > MULTIPLIER_TIMEOUT) {
+    if(player.multiplier.value > 1 && get_multiplier_time_left(player.multiplier, frame) <= 0){
         player.multiplier.value--;
         player.multiplier.last_pickup = frame;
     }

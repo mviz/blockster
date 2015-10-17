@@ -17,7 +17,11 @@ var MAX_LINE_WIDTH = 150;
 
 var MULTIPLIER_WIDTH = 10;
 
-var cur_color = "#000000";
+var lines;
+
+function init_graphics() {
+    init_lines();
+}
 
 function draw_scene() {
     context.clearRect(0,0, canvas.width, canvas.height);       
@@ -126,9 +130,6 @@ function draw_end_scene(score) {
 }
 
 // Of the form {stroke_width : 10, width: 100, x : 20, speed : 10}
-//TODO: init lines every time the game is reset
-var lines = [];
-init_lines();
 
 function draw_background() {
     for(i = 0 ; i < lines.length; i++) {
@@ -156,6 +157,7 @@ function draw_background() {
 }
 
 function init_lines() {
+    lines = [];
     for(i = 0; i < NUM_LINES; i++){
         var line = create_line();
         line.x = Math.random() * canvas.width;

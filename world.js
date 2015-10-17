@@ -7,7 +7,7 @@ var BLOCK_HEIGHT = 10;
 
 function init_world() {
     
-	return {
+	world = {
 
     	'block_move_speed' : 1,
     	'player' : {'x' : 0, 'y' : 0, 'vy' : 1, 'hasJump' : false, 'hasBoost' : true, 
@@ -15,10 +15,14 @@ function init_world() {
     				'score' : 0
     			   },
     	'multipliers' : [],
-    	'blocks' : init_blocks(),
+    	
     	'block_move_speed' : 1,
     	'next_block_frame' : 0
 		};
+
+	world.blocks = init_blocks(world);
+
+	return world;
 }
 
 function world_tick(frame, world) {
@@ -36,16 +40,10 @@ function init_blocks(world) {
 
 	while(blocks.length < 10) {
 	
-		var block = create_block();
-		block.x = Math.random() * canvas.width;
-	
+		var block = create_block(world, Math.random() * canvas.width);
+
 		if(!is_overlapping_any(block, blocks)){
 			blocks.push(block);	
-			
-			//TODO: Maybe move this to the create_block code
-			//if(Math.random() < MULTIPLIER_PROBABILITY){
-			//	world.multipliers.push(create_multiplier(block));
-			//1}
 		}
 	}
 
@@ -70,13 +68,8 @@ function generate_block_if_needed(frame, world) {
 		var block;
 
 		do {
-			block = create_block();
+			block = create_block(world);
 		} while(is_overlapping_any(block, world.blocks));
-
-		//TODO: Maybe move this to the create_block code
-		if(Math.random() < MULTIPLIER_PROBABILITY){
-			world.multipliers.push(create_multiplier(block));
-		}
 
 		world.blocks.push(block);
 	} 
@@ -87,7 +80,6 @@ function move_objects(world) {
 
 		var block = world.blocks[i];
 
-		//TODO: implement me. 		
 		if(block.x + block.width < 0) {
 			world.blocks.splice(i, 1);
 			i--;
@@ -100,7 +92,6 @@ function move_objects(world) {
 
 		var multiplier = world.multipliers[i];
 
-		//TODO: implement me. 		
 		if(multiplier.x + MULTIPLIER_WIDTH < 0) {
 			world.multipliers.splice(i, 1);
 			i--;
@@ -113,15 +104,25 @@ function move_objects(world) {
 
 
 function create_multiplier(block) {
-	//TODO: remove the magic numbers
 	return {'x' : block.x + randomRange(5, block.width + 5), 
 			'y' : block.y - randomRange(10, 40)};
 }
 
-function create_block() {
-	return {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
-			'x' : canvas.width + 100, 
+function create_block(world, x) {
+	if(x === undefined) {
+		x = canvas.width + 100;
+	}
+
+
+	var block = {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
+			'x' : x, 
 			'y' : Math.random() * canvas.height};
+
+	if(Math.random() < MULTIPLIER_PROBABILITY){
+		world.multipliers.push(create_multiplier(block));
+	}
+
+	return block;
 }
 
 /*

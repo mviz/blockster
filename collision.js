@@ -64,13 +64,13 @@ function multiplier_collision(player, multipliers) {
 
 		for(var j = 0; j <  player_points.length; j++) {
 			if(contains(player_points[j], multiplier_points)) {
+
 				player.multiplier.value++;
-				player.last_pickup = frame;
-				
+				player.multiplier.last_pickup = frame;
+
 				multipliers.splice(i, 1);
 				i--;
-
-				break;				
+				break;
 			}
 		}
 	}

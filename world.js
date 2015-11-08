@@ -10,7 +10,7 @@ function init_world() {
 	world = {
 
     	'block_move_speed' : 1,
-    	'player' : {'x' : 0, 'y' : 0, 'vy' : 1, 'hasJump' : false, 'hasBoost' : true, 
+    	'player' : {'x' : PLAYER_X, 'y' : 0, 'vy' : 1, 'hasJump' : false, 'hasBoost' : true, 
     				'multiplier' : {'value' : 1, 'last_pickup' : 0},
     				'score' : 0
     			   },

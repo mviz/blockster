@@ -58,7 +58,7 @@ function world_loop(){
     top_collision(world.player, world.blocks);
     bottom_collision(world.player, world.blocks);
 
-        calculate_score(world.player, frame);
+    calculate_score(world.player, frame);
 
 
     multiplier_collision(world.player, world.multipliers);

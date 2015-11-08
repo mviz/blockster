@@ -45,6 +45,8 @@ function bottom_collision(player, blocks) {
 
 function multiplier_collision(player, multipliers) {
 
+	
+
 	var player_points = [{'x' : player.x + PLAYER_WIDTH, 'y' : player.y},  				   //top right
 						 {'x' : player.x + PLAYER_WIDTH, 'y' : player.y + PLAYER_HEIGHT/2},//middle right
 						 {'x' : player.x + PLAYER_WIDTH, 'y' : player.y + PLAYER_HEIGHT},  //bottom right
@@ -68,14 +70,18 @@ function multiplier_collision(player, multipliers) {
 				player.multiplier.value++;
 				player.multiplier.last_pickup = frame;
 
+				console.log(multipliers.length);
+
 				multipliers.splice(i, 1);
+
+				console.log(multipliers.length);
+
 				i--;
+	
 				break;
 			}
 		}
 	}
-
-
 }
 
 

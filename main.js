@@ -1,6 +1,6 @@
 var FRAME_RATE = 60;
 
-var PLAYER_WIDTH = 8;
+var PLAYER_WIDTH = 16;
 var PLAYER_HEIGHT = 16;
 var PLAYER_X = 50;
 

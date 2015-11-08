@@ -24,6 +24,9 @@ var MULTIPLIER_WIDTH = 10;
 
 var lines;
 
+var avatar_image = new Image();
+avatar_image.src = "resources/avatar.png";
+
 function init_graphics() {
     init_lines();
 }
@@ -33,8 +36,12 @@ function draw_scene() {
 }
 
 function draw_avatar(player) {    
-    context.fillStyle = AVATAR_COLOR;
-    context.fillRect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);
+    /*context.fillStyle = AVATAR_COLOR;
+    context.fillRect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);*/
+
+    context.drawImage(avatar_image, PLAYER_X, player.y, 16, 16);
+
+
 }
 
 function draw_boost(player) {

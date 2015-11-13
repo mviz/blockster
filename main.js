@@ -12,6 +12,22 @@ var frame;
 var playing;
 var multiplier;
 
+var game_width = 480
+var game_height = 320
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerWidth * game_height/game_width;
+
+if(canvas.height > window.innerHeight){
+    
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerHeight * game_width / game_height;
+
+}
+
+context.scale(canvas.width / game_width, canvas.height / game_height); 
+
+
 init();
 
 function init() {

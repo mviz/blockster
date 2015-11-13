@@ -21,7 +21,7 @@ function key_down_handler(event) {
 }
 
 function is_dead(player) {
-	return player.y > canvas.height + 20;
+	return player.y > game_height + 5;
 }
 
 function jump(event) {

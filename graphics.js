@@ -113,7 +113,7 @@ function draw_score(score) {
     context.fillStyle = AVATAR_COLOR;
     context.font = "30px Arial";
     context.textAlign = "right";
-    context.fillText(score, canvas.width, 30);
+    context.fillText(score, game_width, 30);
 }
 
 function draw_multiplier(multiplier, frame) {
@@ -123,14 +123,14 @@ function draw_multiplier(multiplier, frame) {
         var bar_width = percent_left * MAX_MULTIPLIER_BAR_WIDTH;
 
         context.fillStyle = MULTIPLIER_COLOR;
-        context.fillRect(canvas.width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
+        context.fillRect(game_width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
         //context.fill();
     }
 
     context.fillStyle = MULTIPLIER_COLOR;
     context.font = "20px Arial";
     context.textAlign = "right";
-    context.fillText(multiplier.value + 'x', canvas.width, 50);
+    context.fillText(multiplier.value + 'x', game_width, 50);
 }
 
 function draw_end_scene(score) {
@@ -138,11 +138,11 @@ function draw_end_scene(score) {
 
     context.font = "30px Helvetica";
     context.textAlign = "center";
-    context.fillText(score, canvas.width/2, canvas.height/2);
+    context.fillText(score, game_width/2, game_height/2);
 
     context.font = "30px Helvetica";
     context.textAlign = "center";
-    context.fillText("Press space to continue", canvas.width/2, canvas.height/2 + 30);
+    context.fillText("Press space to continue", game_width/2, game_height/2 + 30);
 }
 
 // Of the form {stroke_width : 10, width: 100, x : 20, speed : 10}
@@ -153,7 +153,7 @@ function draw_background() {
 
         line.x += line.speed;
 
-        if(line.x - 10 > canvas.width) {
+        if(line.x - 10 > game_width) {
             lines.splice(i, 1);
         
             lines.push(create_line());
@@ -176,7 +176,7 @@ function init_lines() {
     lines = [];
     for(i = 0; i < NUM_LINES; i++){
         var line = create_line();
-        line.x = Math.random() * canvas.width;
+        line.x = Math.random() * game_width;
         lines.push(line);
     }
 }
@@ -189,7 +189,7 @@ function create_line() {
     return {"stroke_width" : stroke_width, 
             "speed" : line_speed, 
             "x" : -150, 
-            "y" : Math.random() * canvas.height, 
+            "y" : Math.random() * game_height, 
             "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
 }
 

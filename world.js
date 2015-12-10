@@ -7,8 +7,7 @@ var BLOCK_WIDTH_MIN = 100;
 //TODO: the world should have a height seperate from the canvas, and width
 
 function World() {
-    
-	this.blockMoveSpeed = 1;
+   	this.blockMoveSpeed = 1;
 	this.player = new Player();
     this.multipliers = [];	
 	this.blockMoveSpeed = 1;
@@ -18,9 +17,10 @@ function World() {
 }
 
 World.prototype.tick = function() {
-    this.blockMoveSpeed = (Math.exp(frame/20000));
-    this.frame += 1;
-	this.manageBlocks();
+    this.blockMoveSpeed = (Math.exp(this.frame/20000));
+    this.manageBlocks();
+	
+	this.frame += 1;
 }
 
 
@@ -70,7 +70,7 @@ World.prototype.moveObjects = function () {
 		var block = this.blocks[i];
 
 		if(block.x + block.width < 0) {
-			world.blocks.splice(i, 1);
+			this.blocks.splice(i, 1);
 			i--;
 		}
 

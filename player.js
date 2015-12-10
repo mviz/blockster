@@ -2,19 +2,6 @@ var MULTIPLIER_TIMEOUT_IN_SECONDS = 4; //in seconds
 var GRAVITY = +0.01; //TODO: refactor to world and fix Player <-> World dependencies. 
 var MAX_VEL = 3; 
 
-
-//TODO: refactor an input class or something. (GameController maybe? Has knowledge of the world and player)
-function key_down_handler(event) {
-    if (event.keyCode == SPACE_BAR) {
-        if (playing) {
-            event.preventDefault();
-            player.jump();
-        } else {
-            play_again();
-        }
-    }
-}
-
 function Player() {
     this.height = 16;
     this.width = 16;
@@ -34,7 +21,7 @@ Player.prototype.tick = function(world) {
     this.bottomCollision(world.blocks);
     this.multiplierCollision(world);
 
-    this.updateScore(frame);
+    this.updateScore(world.frame);
 }
 
 
@@ -53,7 +40,7 @@ Player.prototype.updateScore = function(frame) {
 
 Player.prototype.topCollision = function(blocks){
 
-    player.hasJump = false;
+    this.hasJump = false;
     for(var i = 0; i < blocks.length; i++){
         block = blocks[i];
         if (this.y + this.height > block.y &&
@@ -97,6 +84,7 @@ Player.prototype.bottomCollision = function(blocks) {
 */
 
 Player.prototype.multiplierCollision = function(world) {
+    var player = world.player;
     var player_points = [{'x' : player.x + player.width, 'y' : player.y},                  //top right
                          {'x' : player.x + player.width, 'y' : player.y + player.height/2},//middle right
                          {'x' : player.x + player.width, 'y' : player.y + player.height},  //bottom right
@@ -139,11 +127,11 @@ Player.prototype.jump = function (event) {
 		event.preventDefault();
 	}
 
-	if(world.player.hasJump){
-    	world.player.vy = -1;
-    } else if (world.player.hasBoost){
-    	world.player.vy = -0.7;
-    	world.player.hasBoost = false;
+	if(this.hasJump){
+    	this.vy = -1;
+    } else if (this.hasBoost){
+    	this.vy = -0.7;
+    	this.hasBoost = false;
     }
 }
 

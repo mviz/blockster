@@ -44,7 +44,10 @@ Graphics.prototype.draw = function() {
 
     this.drawBlocks();
     this.drawMultipliers();
+
+    this.drawHud();
 }
+
 Graphics.prototype.drawHud = function () {
     this.drawScore();
     this.drawMultiplier();

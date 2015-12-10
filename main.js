@@ -35,7 +35,7 @@ function init() {
     next_block_frame = 0;
     interval_ID = setInterval(world_loop, 1/(FRAME_RATE * 1000));
 
-    world = init_world();
+    world = new World();
 
     player = world.player;
 
@@ -68,7 +68,7 @@ function world_loop(){
         return;
     }
 
-    world_tick(frame, world);
+    world.tick();
 
     apply_physics(world.player, world.blocks);
     top_collision(world.player, world.blocks);

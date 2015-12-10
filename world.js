@@ -3,124 +3,104 @@ var MAX_WAIT_FOR_BLOCK = 130;
 var MULTIPLIER_PROBABILITY = .6;
 var BLOCK_WIDTH_MAX = 150;
 var BLOCK_WIDTH_MIN = 100;
-var BLOCK_HEIGHT = 10;
 
-function init_world() {
+//TODO: the world should have a height seperate from the canvas, and width
+
+function World() {
     
-	world = {
-
-    	'block_move_speed' : 1,
-    	'player' : {'x' : PLAYER_X, 'y' : 0, 'vy' : 1, 'hasJump' : false, 'hasBoost' : true, 
-    				'multiplier' : {'value' : 1, 'last_pickup' : 0},
-    				'score' : 0
-    			   },
-    	'multipliers' : [],
-    	
-    	'block_move_speed' : 1,
-    	'next_block_frame' : 0
-		};
-
-	world.blocks = init_blocks(world);
-
-	return world;
+	this.blockMoveSpeed = 1;
+	this.player = new Player();
+    this.multipliers = [];	
+	this.blockMoveSpeed = 1;
+    this.nextBlockFrame = 0;
+	this.frame = 0;
+	this.initBlocks();
 }
 
-function world_tick(frame, world) {
-    world.block_move_speed = (Math.exp(frame/20000));
-
-	manage_blocks(frame, world);
+World.prototype.tick = function() {
+    this.blockMoveSpeed = (Math.exp(frame/20000));
+    this.frame += 1;
+	this.manageBlocks();
 }
 
 
-function init_blocks(world) {
+World.prototype.initBlocks = function() {
 	
-	var blocks = [];
+	this.blocks = [];
 
 	var num_blocks = 20;
 
-	while(blocks.length < 10) {
+	while(this.blocks.length < 10) {
 	
-		var block = create_block(world, Math.random() * canvas.width);
+		var block = this.createBlock(Math.random() * canvas.width);
 
-
-		if(!is_overlapping_any(block, blocks)){
-			blocks.push(block);	
+		if(!this.isOverlappingAny(block)){
+			this.blocks.push(block);	
 		}
 	}
 
-	blocks.push({'width' : BLOCK_WIDTH_MAX * 2, 
-                 'x' : 0, 
-                 'y' : PLAYER_HEIGHT + 10
-    });
+	this.blocks.push(new Block(BLOCK_WIDTH_MAX * 2, 0, PLAYER_HEIGHT + 10));
 
-    return blocks;
 }
 
-function manage_blocks(frame) {
-	generate_block_if_needed(frame, world);
-	move_objects(world);
+World.prototype.manageBlocks = function () {
+	this.generateBlock();
+	this.moveObjects();
 }
 
-function generate_block_if_needed(frame, world) {
-	if(frame >= world.next_block_frame) {
+World.prototype.generateBlock = function() {
+	if(this.frame >= this.nextBlockFrame) {
 
-		world.next_block_frame = frame + randomRange(MIN_WAIT_FOR_BLOCK, MAX_WAIT_FOR_BLOCK);
+		this.nextBlockFrame = this.frame + Utils.randomRange(MIN_WAIT_FOR_BLOCK, MAX_WAIT_FOR_BLOCK);
 		
 		var block;
 
 		do {
-			block = create_block(world);
-		} while(is_overlapping_any(block, world.blocks));
+			block = this.createBlock();
+		} while(this.isOverlappingAny(block));
 
-		world.blocks.push(block);
+		this.blocks.push(block);
 	} 
 }
 
-function move_objects(world) {
-	for(var i = 0; i < world.blocks.length ;i++) {
+World.prototype.moveObjects = function () {
 
-		var block = world.blocks[i];
+	for(var i = 0; i < this.blocks.length ;i++) {
+
+		var block = this.blocks[i];
 
 		if(block.x + block.width < 0) {
 			world.blocks.splice(i, 1);
 			i--;
 		}
 
-		block.x -= world.block_move_speed;
+		block.x -= this.blockMoveSpeed;
 	}
 
-	for(var i = 0; i < world.multipliers.length ;i++) {
+	for(var i = 0; i < this.multipliers.length ;i++) {
 
-		var multiplier = world.multipliers[i];
+		var multiplier = this.multipliers[i];
 
 		if(multiplier.x + MULTIPLIER_WIDTH < 0) {
-			world.multipliers.splice(i, 1);
+			this.multipliers.splice(i, 1);
 			i--;
 		}
 
-		multiplier.x -= world.block_move_speed;
+		multiplier.x -= this.blockMoveSpeed;
 	}
 
 }
 
-
-function create_multiplier(block) {
-	return {'x' : block.x + randomRange(5, block.width + 5), 
-			'y' : block.y - randomRange(10, 40)};
-}
-
-function create_block(world, x) {
+World.prototype.createBlock = function (x) {
 	if(x === undefined) {
 		x = canvas.width + 100;
 	}
 
-
-	var block = {'width' : randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX), 
-			'x' : x, 
-			'y' : Math.random() * canvas.height};
+	//TODO: this could be cleaned up more
+	var block = new Block(x, Math.random() * canvas.height, Utils.randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX));
 
 	if(Math.random() < MULTIPLIER_PROBABILITY){
-		world.multipliers.push(create_multiplier(block));
+		this.multipliers.push(new MultiplierPickup(block));
 	}
 
 	return block;
@@ -137,22 +117,37 @@ function create_block(world, x) {
 	   |_________|
 */
 
-function is_overlapping_any(target_block, blocks) {
-	for(var i = 0; i< blocks.length; i++){
-		if(is_overlapping(target_block, blocks[i])){
-			return true;
+World.prototype.isOverlappingAny = function (block) {
+	for(var i = 0; i < this.blocks.length; i++){
+		if(block.isOverlapping(this.blocks[i])){
+			return false;
 		}
 	}
+
 	return false;
 }
 
-function is_overlapping(block1, block2) {
-	if(block1.x + block1.width < block2.x || block1.x > block2.x + block2.width ||
-	   block1.y + BLOCK_HEIGHT < block2.y || block1.y > block2.y + BLOCK_HEIGHT)  {
+
+function Block(x,y,width){
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = 10;
+}
+
+
+Block.prototype.isOverlapping = function (block) {
+	if(this.x + this.width < block.x || this.x > block.x + block.width ||
+	   this.y + this.height < block.y || this.y > block.y + block.height)  {
 		return false;
 	}
 
 	return true;
+}
+
+function MultiplierPickup(block){
+	this.x = block.x + Utils.randomRange(5, block.width + 5);
+	this.y = block.y - Utils.randomRange(10, 40);
 }
 
 /*block1 = {'x' : 10, 'width' : 10, 'y' : 10, 'height' : 10};

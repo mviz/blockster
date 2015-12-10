@@ -8,7 +8,6 @@ var BOOST_COLOR = "#BF4040";
 var HIGHLIGHT_COLOR = "#FFCF70";
 var MULTIPLIER_COLOR = "#F2DB00"
 
-var BLOCK_HEIGHT = 40;
 var NUM_LINES = 20;
 
 var MAX_LINE_STROKE_WIDTH = 2;
@@ -104,7 +103,7 @@ function draw_blocks(blocks){
     blocks.forEach(function (block) {
         //context.beginPath();
         context.fillStyle = block_color;
-        context.fillRect(block.x, block.y , block.width, BLOCK_HEIGHT);
+        context.fillRect(block.x, block.y , block.width, block.height);
         //context.fill();
     });
 }
@@ -182,14 +181,13 @@ function init_lines() {
 }
 
 function create_line() {
-    var stroke_width = randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
+    var stroke_width = Utils.randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
     var scaled = (stroke_width - 0.4)/15;
     var delta = .1;
-    var line_speed = randomRange(scaled - delta, scaled + delta);
+    var line_speed = Utils.randomRange(scaled - delta, scaled + delta);
     return {"stroke_width" : stroke_width, 
             "speed" : line_speed, 
             "x" : -150, 
             "y" : Math.random() * game_height, 
-            "width" : randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
+            "width" : Utils.randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
 }
-

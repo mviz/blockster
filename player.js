@@ -2,6 +2,21 @@ var MULTIPLIER_TIMEOUT_IN_SECONDS = 4; //in seconds
 var GRAVITY = +0.01;
 var MAX_VEL = 3;
 
+function Player {
+    this.x = PLAYER_X
+    this.y = 0
+    this.vy = 1
+    this.hasJump = false
+    this.hasBoost = true;
+    this.multiplier = new Multiplier();
+    this.score = 0;
+}
+
+function Multiplier() {
+    this.value = 1;
+    this.last_pickup = 0;
+}
+
 function apply_physics(player) {
 	if(player.vy < 1){
 		player.vy += GRAVITY;

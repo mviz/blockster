@@ -5,7 +5,7 @@ function top_collision(player, blocks) {
 	for(var i = 0; i < blocks.length; i++){
 		block = blocks[i];
 		if (player.y + PLAYER_HEIGHT > block.y &&
-			player.y + PLAYER_HEIGHT <= block.y + BLOCK_HEIGHT &&
+			player.y + PLAYER_HEIGHT <= block.y + block.height &&
 			PLAYER_X + PLAYER_WIDTH > block.x  &&
 			PLAYER_X <= block.x + block.width
 			){
@@ -22,12 +22,12 @@ function bottom_collision(player, blocks) {
 	for(var i = 0; i < blocks.length; i++){
 		block = blocks[i];
 		if (player.y > block.y &&
-			player.y <= block.y + BLOCK_HEIGHT &&
+			player.y <= block.y + block.height &&
 			PLAYER_X + PLAYER_WIDTH > block.x  &&
 			PLAYER_X <= block.x + block.width
 			){
 			player.vy = 0;
-			player.y = block.y + BLOCK_HEIGHT + 2;
+			player.y = block.y + block.height + 2;
 			break;
 		}
 	}

@@ -39,7 +39,7 @@ World.prototype.initBlocks = function() {
 		}
 	}
 
-	this.blocks.push(new Block(BLOCK_WIDTH_MAX * 2, 0, PLAYER_HEIGHT + 10));
+	this.blocks.push(new Block(BLOCK_WIDTH_MAX * 2, 0, this.player.height + 10));
 
 }
 
@@ -81,7 +81,7 @@ World.prototype.moveObjects = function () {
 
 		var multiplier = this.multipliers[i];
 
-		if(multiplier.x + MULTIPLIER_WIDTH < 0) {
+		if(multiplier.x + multiplier.width < 0) {
 			this.multipliers.splice(i, 1);
 			i--;
 		}
@@ -148,6 +148,9 @@ Block.prototype.isOverlapping = function (block) {
 function MultiplierPickup(block){
 	this.x = block.x + Utils.randomRange(5, block.width + 5);
 	this.y = block.y - Utils.randomRange(10, 40);
+
+	this.width = 10;
+	this.height = 10;
 }
 
 /*block1 = {'x' : 10, 'width' : 10, 'y' : 10, 'height' : 10};

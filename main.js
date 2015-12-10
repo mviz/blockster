@@ -1,19 +1,17 @@
 var FRAME_RATE = 60;
 
-var PLAYER_WIDTH = 16;
-var PLAYER_HEIGHT = 16;
-var PLAYER_X = 50;
-
 var SPACE_BAR = 32;
 
 var world;
-var interval_ID;
+var interval;
 var frame;
 var playing;
-var multiplier;
+var player;
 
-var game_width = 480
-var game_height = 320
+var game_width = 480; //TODO: move these to world
+var game_height = 320;
+
+
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerWidth * game_height/game_width;
@@ -33,16 +31,16 @@ init();
 function init() {
     frame = 0;
     next_block_frame = 0;
-    interval_ID = setInterval(world_loop, 1/(FRAME_RATE * 1000));
+    interval = setInterval(world_loop, 1/(FRAME_RATE * 1000));
 
     world = new World();
 
-    player = world.player;
+    player = world.player; //TODO: this seems weird
 
     playing = true;
 
     document.addEventListener("keydown", key_down_handler, false);
-    canvas.addEventListener("touchstart", jump, false);    
+    canvas.addEventListener("touchstart", player.jump, false);    
     canvas.removeEventListener("touchstart", play_again, false);
 
     init_graphics();
@@ -55,7 +53,7 @@ function get_high_score() {
 
 function world_loop(){
 
-    if(is_dead(world.player)){
+    if(player.isDead()){
         draw_scene();
         draw_end_scene(world.player.score);
 
@@ -63,21 +61,15 @@ function world_loop(){
         canvas.addEventListener("touchstart", play_again, false)
         playing = false;
 
-        clearInterval(interval_ID);
+        clearInterval(interval);
 
         return;
     }
 
     world.tick();
 
-    apply_physics(world.player, world.blocks);
-    top_collision(world.player, world.blocks);
-    bottom_collision(world.player, world.blocks);
-
-    calculate_score(world.player, frame);
-
-
-    multiplier_collision(world.player, world.multipliers);
+    
+    player.tick(world); //TODO: this shouldn't be this way, two way dependency
     
 
     draw_scene();
@@ -94,14 +86,6 @@ function world_loop(){
     frame++;
 }
 
-function calculate_score(player, frame) {
-    if(player.multiplier.value > 1 && get_multiplier_time_left(player.multiplier, frame) <= 0){
-        player.multiplier.value--;
-        player.multiplier.last_pickup = frame;
-    }
-
-    player.score += player.multiplier.value;
-}
 
 function play_again(event) {
 

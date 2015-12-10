@@ -19,7 +19,7 @@ var MAX_LINE_WIDTH = 150;
 
 var MAX_MULTIPLIER_BAR_WIDTH = 100;
 var MULTIPLIER_BAR_HEIGHT = 5;
-var MULTIPLIER_WIDTH = 10;
+
 
 var lines;
 
@@ -36,9 +36,9 @@ function draw_scene() {
 
 function draw_avatar(player) {    
     /*context.fillStyle = AVATAR_COLOR;
-    context.fillRect(PLAYER_X , player.y , PLAYER_WIDTH, PLAYER_HEIGHT);*/
+    context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);*/
 
-    context.drawImage(avatar_image, PLAYER_X, player.y, 16, 16);
+    context.drawImage(avatar_image, player.x, player.y, 16, 16);
 
 
 }
@@ -51,14 +51,14 @@ function draw_boost(player) {
     //     e
     if(player.vy < 0){
         var a = {'x': 0,                              'y': 0};
-        var b = {'x': PLAYER_WIDTH,                   'y': 0};
-        var c = {'x': Math.floor(PLAYER_WIDTH/4),     'y': 7};
-        var d = {'x': Math.floor(PLAYER_WIDTH*(3/4)), 'y': 7};
-        var e = {'x': Math.floor(PLAYER_WIDTH/2),     'y': 10};
+        var b = {'x': player.width,                   'y': 0};
+        var c = {'x': Math.floor(player.width/4),     'y': 7};
+        var d = {'x': Math.floor(player.width*(3/4)), 'y': 7};
+        var e = {'x': Math.floor(player.width/2),     'y': 10};
         
         context.save();
 
-        context.translate(PLAYER_X, player.y + PLAYER_HEIGHT);
+        context.translate(player.x, player.y + player.height);
 
         var body = [a,b,d,c,a];
         var tip = [c,e,d,c];
@@ -87,13 +87,13 @@ function draw_multipliers(multipliers){
     multipliers.forEach(function (multiplier) {
         context.save();
 
-        context.translate(multiplier.x + MULTIPLIER_WIDTH / 2, multiplier.y + MULTIPLIER_WIDTH / 2);
+        context.translate(multiplier.x + multiplier.width / 2, multiplier.y + multiplier.width / 2);
         context.rotate(Math.PI / 4);
 
         context.fillStyle = MULTIPLIER_COLOR;
 
-        context.fillRect(-MULTIPLIER_WIDTH / 2, -MULTIPLIER_WIDTH / 2,
-                     MULTIPLIER_WIDTH, MULTIPLIER_WIDTH);
+        context.fillRect(-multiplier.width / 2, -multiplier.width / 2,
+                     multiplier.width, multiplier.width);
         
         context.restore();
     });
@@ -118,7 +118,7 @@ function draw_score(score) {
 function draw_multiplier(multiplier, frame) {
 
     if(multiplier.value != 1){
-        var percent_left = get_multiplier_time_left(multiplier, frame)/get_total_time_for_mutliplier(multiplier);
+        var percent_left = multiplier.getTimeLeft(frame)/multiplier.getTotalTime();
         var bar_width = percent_left * MAX_MULTIPLIER_BAR_WIDTH;
 
         context.fillStyle = MULTIPLIER_COLOR;

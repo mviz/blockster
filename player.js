@@ -34,7 +34,7 @@ Player.prototype.tick = function(world) {
     this.bottomCollision(world.blocks);
     this.multiplierCollision(world);
 
-    this.updateScore();
+    this.updateScore(frame);
 }
 
 

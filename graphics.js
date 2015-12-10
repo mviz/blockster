@@ -1,12 +1,13 @@
-var canvas = document.getElementById("gameCanvas");
-var context = canvas.getContext("2d");
+//TODO: grouping calls to fill and stroke will yield huge performance gains if needed
 
-var AVATAR_COLOR = "#3DB845";
-var block_color = "#00A3FB";
-var LINE_COLOR = "#AAAAAA";
+Block.prototype.color = "#00A3FB";
+MultiplierPickup.prototype.color = "#F2DB00";
+Player.prototype.color = "#3DB845";
+Line.prototype.color = "#AAAAAA";
+
+//TODO: errr idk what to do here. 
 var BOOST_COLOR = "#BF4040";
 var HIGHLIGHT_COLOR = "#FFCF70";
-var MULTIPLIER_COLOR = "#F2DB00"
 
 var NUM_LINES = 20;
 
@@ -20,35 +21,51 @@ var MAX_LINE_WIDTH = 150;
 var MAX_MULTIPLIER_BAR_WIDTH = 100;
 var MULTIPLIER_BAR_HEIGHT = 5;
 
-
-var lines;
-
 var avatar_image = new Image();
 avatar_image.src = "resources/avatar.png";
 
-function init_graphics() {
-    init_lines();
+function Graphics(world, canvas,  context) {
+    this.world = world;
+    this.context = context;
+    this.canvas = canvas;
+    this.initLines();
 }
 
-function draw_scene() {
-    context.clearRect(0,0, canvas.width, canvas.height);       
+Graphics.prototype.clearScene = function () {
+    this.context.clearRect(0,0, canvas.width, canvas.height);       
 }
 
-function draw_avatar(player) {    
+Graphics.prototype.draw = function() {
+    this.clearScene();
+    this.drawBackground();
+
+    this.drawAvatar();
+    this.drawBoost();
+
+    this.drawBlocks();
+    this.drawMultipliers();
+}
+Graphics.prototype.drawHud = function () {
+    this.drawScore();
+    this.drawMultiplier();
+}
+
+Graphics.prototype.drawAvatar = function draw_avatar(player) {    
     /*context.fillStyle = AVATAR_COLOR;
     context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);*/
 
-    context.drawImage(avatar_image, player.x, player.y, 16, 16);
-
-
+    this.context.drawImage(avatar_image, this.world.player.x, this.world.player.y, 16, 16); //TODO: magic numbers
 }
 
-function draw_boost(player) {
+Graphics.prototype.drawBoost = function () {
     // Styling was a bit of an accident, but hey, I like it.
     // a - - - b
     //   - - -
     //   c - d 
     //     e
+
+    var player = this.world.player;
+
     if(player.vy < 0){
         var a = {'x': 0,                              'y': 0};
         var b = {'x': player.width,                   'y': 0};
@@ -56,138 +73,141 @@ function draw_boost(player) {
         var d = {'x': Math.floor(player.width*(3/4)), 'y': 7};
         var e = {'x': Math.floor(player.width/2),     'y': 10};
         
-        context.save();
+        this.context.save();
 
-        context.translate(player.x, player.y + player.height);
+        this.context.translate(player.x, player.y + player.height);
 
         var body = [a,b,d,c,a];
         var tip = [c,e,d,c];
 
-        context.fillStyle = BOOST_COLOR;
-        draw_path(body);
-        context.fill();
+        this.context.fillStyle = BOOST_COLOR;
+        this.drawPath(body);
+        this.context.fill();
 
 
-        context.fillStyle = HIGHLIGHT_COLOR;
-        draw_path(tip);
-        context.fill();
+        this.context.fillStyle = HIGHLIGHT_COLOR;
+        this.drawPath(tip);
+        this.context.fill();
 
-        context.restore();
+        this.context.restore();
     }
 }
 
-function draw_path(path) {
-    context.moveTo(path[0].x, path[0].y);
+Graphics.prototype.drawPath = function (path) {
+    this.context.moveTo(path[0].x, path[0].y);
     for(i = 1; i < path.length; i++){
-        context.lineTo(path[i].x, path[i].y);
+        this.context.lineTo(path[i].x, path[i].y);
     }
 }
 
-function draw_multipliers(multipliers){
-    multipliers.forEach(function (multiplier) {
-        context.save();
+Graphics.prototype.drawMultipliers = function(){
+    this.world.multipliers.forEach(function (multiplier) {
+        this.context.save();
 
-        context.translate(multiplier.x + multiplier.width / 2, multiplier.y + multiplier.width / 2);
-        context.rotate(Math.PI / 4);
+        this.context.translate(multiplier.x + multiplier.width / 2, multiplier.y + multiplier.width / 2);
+        this.context.rotate(Math.PI / 4);
 
-        context.fillStyle = MULTIPLIER_COLOR;
+        this.context.fillStyle = multiplier.color;
 
-        context.fillRect(-multiplier.width / 2, -multiplier.width / 2,
+        this.context.fillRect(-multiplier.width / 2, -multiplier.width / 2,
                      multiplier.width, multiplier.width);
         
-        context.restore();
+        this.context.restore();
     });
 }
 
-function draw_blocks(blocks){
-    blocks.forEach(function (block) {
-        //context.beginPath();
-        context.fillStyle = block_color;
-        context.fillRect(block.x, block.y , block.width, block.height);
-        //context.fill();
+Graphics.prototype.drawBlocks = function(){
+    this.world.blocks.forEach(function (block) {
+        this.context.fillStyle = block.color;
+        this.context.fillRect(block.x, block.y , block.width, block.height);
     });
 }
 
-function draw_score(score) {
-    context.fillStyle = AVATAR_COLOR;
-    context.font = "30px Arial";
-    context.textAlign = "right";
-    context.fillText(score, game_width, 30);
+Graphics.prototype.drawScore = function () {
+
+    this.context.fillStyle = this.world.player.color;//TODO: errr need a better way to move colors around.
+    this.context.font = "30px Arial";
+    this.context.textAlign = "right";
+    this.context.fillText(this.world.player.score, game_width, 30); //TODO: game_width again
+
 }
 
-function draw_multiplier(multiplier, frame) {
+Graphics.prototype.drawMultiplier = function drawMultiplier() {
+    var multiplier = this.world.player.multiplier;
 
     if(multiplier.value != 1){
-        var percent_left = multiplier.getTimeLeft(frame)/multiplier.getTotalTime();
-        var bar_width = percent_left * MAX_MULTIPLIER_BAR_WIDTH;
+        var percentLeft = multiplier.getTimeLeft(this.world.frame) / multiplier.getTotalTime();
+        var barWidth = percentLeft * MAX_MULTIPLIER_BAR_WIDTH;
 
-        context.fillStyle = MULTIPLIER_COLOR;
-        context.fillRect(game_width - bar_width, 55, bar_width, MULTIPLIER_BAR_HEIGHT);
-        //context.fill();
+        this.context.fillStyle = MultiplierPickup.prototype.color;
+        this.context.fillRect(game_width - barWidth, 55, barWidth, MULTIPLIER_BAR_HEIGHT);
     }
 
-    context.fillStyle = MULTIPLIER_COLOR;
-    context.font = "20px Arial";
-    context.textAlign = "right";
-    context.fillText(multiplier.value + 'x', game_width, 50);
+    this.context.fillStyle = MultiplierPickup.prototype.color;
+    this.context.font = "20px Arial";
+    this.context.textAlign = "right";
+    this.context.fillText(multiplier.value + 'x', game_width, 50);
 }
 
-function draw_end_scene(score) {
-    context.fillStyle = "#000000";
+Graphics.prototype.drawEndScene = function (score) {
+    this.clearScene();
+    this.context.fillStyle = "#000000";
 
-    context.font = "30px Helvetica";
-    context.textAlign = "center";
-    context.fillText(score, game_width/2, game_height/2);
+    this.context.font = "30px Helvetica";
+    this.context.textAlign = "center";
+    this.context.fillText(score, game_width/2, game_height/2);
 
-    context.font = "30px Helvetica";
-    context.textAlign = "center";
-    context.fillText("Press space to continue", game_width/2, game_height/2 + 30);
+    this.context.font = "30px Helvetica";
+    this.context.textAlign = "center";
+    this.context.fillText("Press space to continue", game_width/2, game_height/2 + 30);
 }
 
-// Of the form {stroke_width : 10, width: 100, x : 20, speed : 10}
-
-function draw_background() {
-    for(i = 0 ; i < lines.length; i++) {
-        line = lines[i];
+Graphics.prototype.drawBackground = function() {
+    
+    for(i = 0 ; i < this.lines.length; i++) {
+        line = this.lines[i];
 
         line.x += line.speed;
 
         if(line.x - 10 > game_width) {
-            lines.splice(i, 1);
+            this.lines.splice(i, 1);
         
-            lines.push(create_line());
+            this.lines.push(new Line());
 
             continue;
         }
 
-        context.beginPath();
+        this.context.beginPath();
 
-        context.lineWidth = line.stroke_width;
-        context.strokeStyle = LINE_COLOR;
-        context.moveTo(line.x, line.y);
-        context.lineTo(line.x + line.width, line.y);
-        context.stroke();
+        this.context.lineWidth = line.stroke_width;
+        this.context.strokeStyle = line.color;
+        this.context.moveTo(line.x, line.y);
+        this.context.lineTo(line.x + line.width, line.y);
+        this.context.stroke();
     }
 
 }
 
-function init_lines() {
-    lines = [];
+Graphics.prototype.initLines = function () {
+    this.lines = [];
     for(i = 0; i < NUM_LINES; i++){
-        var line = create_line();
-        line.x = Math.random() * game_width;
-        lines.push(line);
+        this.lines.push(new Line(Math.random() * game_width));
     }
 }
 
-function create_line() {
-    var stroke_width = Utils.randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
-    var scaled = (stroke_width - 0.4)/15;
+function Line(x) {
+    this.stroke_width = Utils.randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
+    this.scaled = (this.stroke_width - 0.4)/15;
+    
     var delta = .1;
-    var line_speed = Utils.randomRange(scaled - delta, scaled + delta);
-    return {"stroke_width" : stroke_width, 
-            "speed" : line_speed, 
-            "x" : -150, 
-            "y" : Math.random() * game_height, 
-            "width" : Utils.randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH)};
+
+    this.speed = Utils.randomRange(this.scaled - delta, this.scaled + delta);
+    this.x = x;
+
+    if (x === undefined){
+        this.x = -150;    
+    } 
+    
+    this.y = Math.random() * game_height;
+    this.width = Utils.randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH);
 }

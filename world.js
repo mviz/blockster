@@ -1,12 +1,16 @@
-var MIN_WAIT_FOR_BLOCK = 30;
-var MAX_WAIT_FOR_BLOCK = 130;
-var MULTIPLIER_PROBABILITY = .6;
-var BLOCK_WIDTH_MAX = 150;
-var BLOCK_WIDTH_MIN = 100;
 
-//TODO: the world should have a height seperate from the canvas, and width
+Object.defineProperty(World, "INIT_BLOCKS", { value: 10});
+Object.defineProperty(World, "MIN_WAIT_FOR_BLOCK", {value: 30});
+Object.defineProperty(World, "MAX_WAIT_FOR_BLOCK", {value: 130});
+Object.defineProperty(World, "MULTIPLIER_PROBABILITY", {value: .6});
+
+Object.defineProperty(Block, "MAX_WIDTH", { value: 100});
+Object.defineProperty(Block, "MIN_WIDTH", { value: 150});
 
 function World() {
+	this.width = 480;
+	this.height = 320;
+
    	this.blockMoveSpeed = 1;
 	this.player = new Player();
     this.multipliers = [];	
@@ -19,7 +23,6 @@ function World() {
 World.prototype.tick = function() {
     this.blockMoveSpeed = (Math.exp(this.frame/20000));
     this.manageBlocks();
-	
 	this.frame += 1;
 }
 
@@ -28,18 +31,26 @@ World.prototype.initBlocks = function() {
 	
 	this.blocks = [];
 
-	var num_blocks = 20;
-
-	while(this.blocks.length < 10) {
+	while(this.blocks.length < World.INIT_BLOCKS) {
 	
-		var block = this.createBlock(Math.random() * canvas.width);
+		var block = new Block(this);
+		block.x = Math.random() * this.width;
 
 		if(!this.isOverlappingAny(block)){
 			this.blocks.push(block);	
+
+			if(Math.random() > World.MULTIPLIER_PROBABILITY){
+				this.multipliers.push(new MultiplierPickup(block));
+			}
 		}
 	}
 
-	this.blocks.push(new Block(BLOCK_WIDTH_MAX * 2, 0, this.player.height + 10));
+	var startingBlock = new Block(this);
+	block.y = this.player.height + 10;
+	block.width = Block.MAX_WIDTH * 2;
+	block.x = 0;
+
+	this.blocks.push(startingBlock);
 
 }
 
@@ -51,13 +62,17 @@ World.prototype.manageBlocks = function () {
 World.prototype.generateBlock = function() {
 	if(this.frame >= this.nextBlockFrame) {
 
-		this.nextBlockFrame = this.frame + Utils.randomRange(MIN_WAIT_FOR_BLOCK, MAX_WAIT_FOR_BLOCK);
+		this.nextBlockFrame = this.frame + Utils.randomRange(World.MIN_WAIT_FOR_BLOCK, World.MAX_WAIT_FOR_BLOCK);
 		
 		var block;
 
 		do {
-			block = this.createBlock();
+			block = new Block(this);
 		} while(this.isOverlappingAny(block));
+
+		if(Math.random() > World.MULTIPLIER_PROBABILITY){
+			this.multipliers.push(new MultiplierPickup(block));
+		}
 
 		this.blocks.push(block);
 	} 
@@ -91,21 +106,6 @@ World.prototype.moveObjects = function () {
 
 }
 
-World.prototype.createBlock = function (x) {
-	if(x === undefined) {
-		x = canvas.width + 100;
-	}
-
-	//TODO: this could be cleaned up more
-	var block = new Block(x, Math.random() * canvas.height, Utils.randomRange(BLOCK_WIDTH_MIN, BLOCK_WIDTH_MAX));
-
-	if(Math.random() < MULTIPLIER_PROBABILITY){
-		this.multipliers.push(new MultiplierPickup(block));
-	}
-
-	return block;
-}
-
 /*
 	Blocks can't overlap.
 	There can't be a point where it's impossible to make it to a block.
@@ -128,10 +128,10 @@ World.prototype.isOverlappingAny = function (block) {
 }
 
 
-function Block(x,y,width){
-	this.x = x;
-	this.y = y;
-	this.width = width;
+function Block(world){
+	this.x = world.width + 100;
+	this.y = Math.random() * world.height;
+	this.width = Utils.randomRange(Block.MIN_WIDTH, Block.MAX_WIDTH);		
 	this.height = 10;
 }
 

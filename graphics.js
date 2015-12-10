@@ -1,4 +1,6 @@
 //TODO: grouping calls to fill and stroke will yield huge performance gains if needed
+//TODO: a lot of the time we're setting fillStyle ike 8 times to the same value
+
 
 Block.prototype.color = "#00A3FB";
 MultiplierPickup.prototype.color = "#F2DB00";
@@ -9,7 +11,7 @@ Line.prototype.color = "#AAAAAA";
 var BOOST_COLOR = "#BF4040";
 var HIGHLIGHT_COLOR = "#FFCF70";
 
-var NUM_LINES = 20;
+NUM_LINES = 20;
 
 var MAX_LINE_STROKE_WIDTH = 2;
 var MIN_LINE_STROKE_WIDTH = 0.5;
@@ -28,11 +30,27 @@ function Graphics(world, canvas,  context) {
     this.world = world;
     this.context = context;
     this.canvas = canvas;
+
+    this.initCanvas();    
     this.initLines();
 }
 
+Graphics.prototype.initCanvas = function() {
+
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerWidth * this.world.height/this.world.width;
+    
+    //TODO: can we abstract window?
+    if(this.canvas.height > window.innerHeight){
+        this.canvas.height = window.innerHeight;
+        this.canvas.width = window.innerHeight * this.world.width / this.world.height;
+    }
+
+    this.context.scale(this.canvas.width / this.world.width, this.canvas.height / this.world.height); 
+}
+
 Graphics.prototype.clearScene = function () {
-    this.context.clearRect(0,0, canvas.width, canvas.height);       
+    this.context.clearRect(0,0, this.canvas.width, this.canvas.height);       
 }
 
 Graphics.prototype.draw = function() {
@@ -48,14 +66,28 @@ Graphics.prototype.draw = function() {
     this.drawHud();
 }
 
+Graphics.prototype.drawEndScene = function (score) {
+    this.clearScene();
+    this.context.fillStyle = "#000000";
+
+    this.context.font = "30px Helvetica";
+    this.context.textAlign = "center";
+    this.context.fillText(score, this.world.width/2, this.world.height/2);
+
+    this.context.font = "30px Helvetica";
+    this.context.textAlign = "center";
+    this.context.fillText("Press space to continue", this.world.width/2, this.world.height/2 + 30);
+}
+
+
 Graphics.prototype.drawHud = function () {
     this.drawScore();
     this.drawMultiplier();
 }
 
 Graphics.prototype.drawAvatar = function draw_avatar(player) {    
-    /*context.fillStyle = AVATAR_COLOR;
-    context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);*/
+    //context.fillStyle = AVATAR_COLOR;
+    //context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);
 
     this.context.drawImage(avatar_image, this.world.player.x, this.world.player.y, 16, 16); //TODO: magic numbers
 }
@@ -116,14 +148,14 @@ Graphics.prototype.drawMultipliers = function(){
                      multiplier.width, multiplier.width);
         
         this.context.restore();
-    });
+    }.bind(this));
 }
 
 Graphics.prototype.drawBlocks = function(){
     this.world.blocks.forEach(function (block) {
         this.context.fillStyle = block.color;
         this.context.fillRect(block.x, block.y , block.width, block.height);
-    });
+    }.bind(this));
 }
 
 Graphics.prototype.drawScore = function () {
@@ -131,7 +163,7 @@ Graphics.prototype.drawScore = function () {
     this.context.fillStyle = this.world.player.color;//TODO: errr need a better way to move colors around.
     this.context.font = "30px Arial";
     this.context.textAlign = "right";
-    this.context.fillText(this.world.player.score, game_width, 30); //TODO: game_width again
+    this.context.fillText(this.world.player.score, this.world.width, 30);
 
 }
 
@@ -143,26 +175,13 @@ Graphics.prototype.drawMultiplier = function drawMultiplier() {
         var barWidth = percentLeft * MAX_MULTIPLIER_BAR_WIDTH;
 
         this.context.fillStyle = MultiplierPickup.prototype.color;
-        this.context.fillRect(game_width - barWidth, 55, barWidth, MULTIPLIER_BAR_HEIGHT);
+        this.context.fillRect(this.world.width - barWidth, 55, barWidth, MULTIPLIER_BAR_HEIGHT);
     }
 
     this.context.fillStyle = MultiplierPickup.prototype.color;
     this.context.font = "20px Arial";
     this.context.textAlign = "right";
-    this.context.fillText(multiplier.value + 'x', game_width, 50);
-}
-
-Graphics.prototype.drawEndScene = function (score) {
-    this.clearScene();
-    this.context.fillStyle = "#000000";
-
-    this.context.font = "30px Helvetica";
-    this.context.textAlign = "center";
-    this.context.fillText(score, game_width/2, game_height/2);
-
-    this.context.font = "30px Helvetica";
-    this.context.textAlign = "center";
-    this.context.fillText("Press space to continue", game_width/2, game_height/2 + 30);
+    this.context.fillText(multiplier.value + 'x', this.world.width, 50);
 }
 
 Graphics.prototype.drawBackground = function() {
@@ -172,10 +191,10 @@ Graphics.prototype.drawBackground = function() {
 
         line.x += line.speed;
 
-        if(line.x - 10 > game_width) {
+        if(line.x - 10 > this.world.width) {
             this.lines.splice(i, 1);
         
-            this.lines.push(new Line());
+            this.lines.push(new Line(this.world));
 
             continue;
         }
@@ -194,11 +213,11 @@ Graphics.prototype.drawBackground = function() {
 Graphics.prototype.initLines = function () {
     this.lines = [];
     for(i = 0; i < NUM_LINES; i++){
-        this.lines.push(new Line(Math.random() * game_width));
+        this.lines.push(new Line(this.world, Math.random() * this.world.width));
     }
 }
 
-function Line(x) {
+function Line(world, x) {
     this.stroke_width = Utils.randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
     this.scaled = (this.stroke_width - 0.4)/15;
     
@@ -211,6 +230,6 @@ function Line(x) {
         this.x = -150;    
     } 
     
-    this.y = Math.random() * game_height;
+    this.y = Math.random() * world.height;
     this.width = Utils.randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH);
 }

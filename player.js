@@ -1,4 +1,4 @@
-var MULTIPLIER_TIMEOUT_IN_SECONDS = 4; //in seconds
+var MULTIPLIER_TIMEOUT_IN_SECONDS = 4;
 var GRAVITY = +0.01; //TODO: refactor to world and fix Player <-> World dependencies. 
 var MAX_VEL = 3; 
 
@@ -118,8 +118,8 @@ Player.prototype.multiplierCollision = function(world) {
 }
 
 
-Player.prototype.isDead = function () {
-	return this.y > game_height + 5; //TODO: refactor me please. 
+Player.prototype.isDead = function (world) {
+	return this.y > world.height + 5;
 }
 
 Player.prototype.jump = function (event) {
@@ -149,7 +149,7 @@ Multiplier.prototype.getTimeLeft = function(frame) {
 }
 
 Multiplier.prototype.getTotalTime = function () {
-	return (2/(0.5 * this.value)) * MULTIPLIER_TIMEOUT_IN_SECONDS * FRAME_RATE;
+	return (2/(0.5 * this.value)) * MULTIPLIER_TIMEOUT_IN_SECONDS * 60; //TODO: magic number(frame rate to reduce dependency)
 }
 
 Multiplier.prototype.update = function(frame) {
@@ -165,6 +165,3 @@ Multiplier.prototype.add = function(frame) {
     this.value++;
     this.lastPickup = frame;
 }
-
-
-

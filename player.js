@@ -1,6 +1,6 @@
-var MULTIPLIER_TIMEOUT_IN_SECONDS = 4;
+Object.defineProperty(Multiplier, "MULTIPLIER_TIMEOUT_IN_SECONDS", {value: 4});
+
 var GRAVITY = +0.01; //TODO: refactor to world and fix Player <-> World dependencies. 
-var MAX_VEL = 3; 
 
 function Player() {
     this.height = 16;
@@ -21,7 +21,7 @@ Player.prototype.tick = function(world) {
     this.bottomCollision(world.blocks);
     this.multiplierCollision(world);
 
-    this.updateScore(world.frame);
+    this.updateScore();
 }
 
 
@@ -32,8 +32,8 @@ Player.prototype.applyPhysics = function() {
     this.y += this.vy
 }
 
-Player.prototype.updateScore = function(frame) {
-    this.multiplier.update(frame);
+Player.prototype.updateScore = function() {
+    this.multiplier.tick();
     this.score += this.multiplier.value;
 }
 
@@ -105,7 +105,7 @@ Player.prototype.multiplierCollision = function(world) {
         for(var j = 0; j <  player_points.length; j++) {
             if(Utils.contains(player_points[j], multiplier_points)) {
 
-                player.multiplier.add(world.frame);
+                player.multiplier.add();
 
 
                 world.multipliers.splice(i, 1);//TODO: this seems weird, it's in the wrong spot now
@@ -138,30 +138,28 @@ Player.prototype.jump = function (event) {
 
 function Multiplier() {
     this.value = 1;
-    this.lastPickup = 0;
+    this.timeLeft = 0;
 }
 
 
-Multiplier.prototype.getTimeLeft = function(frame) {
-	var timeElapsed = frame - this.lastPickup;
-
-	return this.getTotalTime() - timeElapsed;
+Multiplier.prototype.getTimeLeft = function() {
+	return this.timeLeft;
 }
 
 Multiplier.prototype.getTotalTime = function () {
-	return (2/(0.5 * this.value)) * MULTIPLIER_TIMEOUT_IN_SECONDS * 60; //TODO: magic number(frame rate to reduce dependency)
+	return (2/(0.5 * this.value)) * Multiplier.MULTIPLIER_TIMEOUT_IN_SECONDS * 60; //TODO: magic number(frame rate to reduce dependency)
 }
 
-Multiplier.prototype.update = function(frame) {
-    //TODO: make this a tick-style function so we don't need frame
-
-    if(this.value > 1 && this.getTimeLeft(frame) <= 0){
+Multiplier.prototype.tick = function() {
+    this.timeLeft--;
+    
+    if(this.value > 1 && this.timeLeft <= 0){
         this.value--;
-        this.lastPickup = frame;
+        this.timeLeft = this.getTotalTime();
     }
 }
 
-Multiplier.prototype.add = function(frame) {
+Multiplier.prototype.add = function() {
     this.value++;
-    this.lastPickup = frame;
+    this.timeLeft = this.getTotalTime();
 }

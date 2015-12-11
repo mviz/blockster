@@ -1,30 +1,26 @@
 //TODO: grouping calls to fill and stroke will yield huge performance gains if needed
 //TODO: a lot of the time we're setting fillStyle ike 8 times to the same value
 
+Object.defineProperty(Graphics, "NUM_LINES", {value: 20});
+Object.defineProperty(Graphics, "MAX_MULTIPLIER_BAR_WIDTH", {value: 100});
+Object.defineProperty(Graphics, "MULTIPLIER_BAR_HEIGHT", {value: 5});
 
-Block.prototype.color = "#00A3FB";
-MultiplierPickup.prototype.color = "#F2DB00";
-Player.prototype.color = "#3DB845";
-Line.prototype.color = "#AAAAAA";
+Object.defineProperty(Block, "COLOR", {value: "#00A3FB"});
+Object.defineProperty(MultiplierPickup, "COLOR", {value: "#F2DB00"});
 
-//TODO: errr idk what to do here. 
-var BOOST_COLOR = "#BF4040";
-var HIGHLIGHT_COLOR = "#FFCF70";
+Object.defineProperty(Player, "COLOR", {value: "#3DB845"});
+Object.defineProperty(Player, "BOOST_COLOR", {value: "#BF4040"});
+Object.defineProperty(Player, "HIGHLIGHT_COLOR", {value: "#FFCF70"});
 
-NUM_LINES = 20;
+Object.defineProperty(Line, "COLOR", {value: "#AAAAAA"});
 
-var MAX_LINE_STROKE_WIDTH = 2;
-var MIN_LINE_STROKE_WIDTH = 0.5;
-var MAX_LINE_SPEED = 1;
-var MIN_LINE_SPEED = .1;
-var MIN_LINE_WIDTH = 100;
-var MAX_LINE_WIDTH = 150;
+Object.defineProperty(Line, "MAX_STROKE_WIDTH", {value: 2});
+Object.defineProperty(Line, "MIN_STROKE_WIDTH", {value: 0.5});
+Object.defineProperty(Line, "MAX_SPEED", {value: 1});
+Object.defineProperty(Line, "MIN_SPEED", {value: .1});
+Object.defineProperty(Line, "MAX_WIDTH", {value: 150});
+Object.defineProperty(Line, "MIN_WIDTH", {value: 100});
 
-var MAX_MULTIPLIER_BAR_WIDTH = 100;
-var MULTIPLIER_BAR_HEIGHT = 5;
-
-var avatar_image = new Image();
-avatar_image.src = "resources/avatar.png";
 
 function Graphics(world, canvas,  context) {
     this.world = world;
@@ -33,6 +29,12 @@ function Graphics(world, canvas,  context) {
 
     this.initCanvas();    
     this.initLines();
+    this.loadResources();
+}
+
+Graphics.prototype.loadResources = function() {
+    this.avatarImage = new Image();
+    this.avatarImage.src = "resources/avatar.png";
 }
 
 Graphics.prototype.initCanvas = function() {
@@ -89,7 +91,8 @@ Graphics.prototype.drawAvatar = function draw_avatar(player) {
     //context.fillStyle = AVATAR_COLOR;
     //context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);
 
-    this.context.drawImage(avatar_image, this.world.player.x, this.world.player.y, 16, 16); //TODO: magic numbers
+    this.context.drawImage(this.avatarImage, this.world.player.x, this.world.player.y, 
+        this.world.player.width, this.world.player.height);
 }
 
 Graphics.prototype.drawBoost = function () {
@@ -115,12 +118,12 @@ Graphics.prototype.drawBoost = function () {
         var body = [a,b,d,c,a];
         var tip = [c,e,d,c];
 
-        this.context.fillStyle = BOOST_COLOR;
+        this.context.fillStyle = Player.BOOST_COLOR;
         this.drawPath(body);
         this.context.fill();
 
 
-        this.context.fillStyle = HIGHLIGHT_COLOR;
+        this.context.fillStyle = Player.HIGHLIGHT_COLOR;
         this.drawPath(tip);
         this.context.fill();
 
@@ -142,7 +145,7 @@ Graphics.prototype.drawMultipliers = function(){
         this.context.translate(multiplier.x + multiplier.width / 2, multiplier.y + multiplier.width / 2);
         this.context.rotate(Math.PI / 4);
 
-        this.context.fillStyle = multiplier.color;
+        this.context.fillStyle = MultiplierPickup.COLOR;
 
         this.context.fillRect(-multiplier.width / 2, -multiplier.width / 2,
                      multiplier.width, multiplier.width);
@@ -153,14 +156,14 @@ Graphics.prototype.drawMultipliers = function(){
 
 Graphics.prototype.drawBlocks = function(){
     this.world.blocks.forEach(function (block) {
-        this.context.fillStyle = block.color;
+        this.context.fillStyle = Block.COLOR;
         this.context.fillRect(block.x, block.y , block.width, block.height);
     }.bind(this));
 }
 
 Graphics.prototype.drawScore = function () {
 
-    this.context.fillStyle = this.world.player.color;//TODO: errr need a better way to move colors around.
+    this.context.fillStyle = Player.COLOR;
     this.context.font = "30px Arial";
     this.context.textAlign = "right";
     this.context.fillText(this.world.player.score, this.world.width, 30);
@@ -172,13 +175,13 @@ Graphics.prototype.drawMultiplier = function drawMultiplier() {
 
     if(multiplier.value != 1){
         var percentLeft = multiplier.getTimeLeft(this.world.frame) / multiplier.getTotalTime();
-        var barWidth = percentLeft * MAX_MULTIPLIER_BAR_WIDTH;
+        var barWidth = percentLeft * Graphics.MAX_MULTIPLIER_BAR_WIDTH;
 
-        this.context.fillStyle = MultiplierPickup.prototype.color;
-        this.context.fillRect(this.world.width - barWidth, 55, barWidth, MULTIPLIER_BAR_HEIGHT);
+        this.context.fillStyle = MultiplierPickup.COLOR;
+        this.context.fillRect(this.world.width - barWidth, 55, barWidth, Graphics.MULTIPLIER_BAR_HEIGHT);
     }
 
-    this.context.fillStyle = MultiplierPickup.prototype.color;
+    this.context.fillStyle = MultiplierPickup.COLOR;
     this.context.font = "20px Arial";
     this.context.textAlign = "right";
     this.context.fillText(multiplier.value + 'x', this.world.width, 50);
@@ -202,7 +205,7 @@ Graphics.prototype.drawBackground = function() {
         this.context.beginPath();
 
         this.context.lineWidth = line.stroke_width;
-        this.context.strokeStyle = line.color;
+        this.context.strokeStyle = Line.COLOR;
         this.context.moveTo(line.x, line.y);
         this.context.lineTo(line.x + line.width, line.y);
         this.context.stroke();
@@ -212,13 +215,14 @@ Graphics.prototype.drawBackground = function() {
 
 Graphics.prototype.initLines = function () {
     this.lines = [];
-    for(i = 0; i < NUM_LINES; i++){
+
+    for(i = 0; i < Graphics.NUM_LINES; i++){
         this.lines.push(new Line(this.world, Math.random() * this.world.width));
     }
 }
 
 function Line(world, x) {
-    this.stroke_width = Utils.randomRange(MIN_LINE_STROKE_WIDTH, MAX_LINE_STROKE_WIDTH);
+    this.stroke_width = Utils.randomRange(Line.MIN_STROKE_WIDTH, Line.MAX_STROKE_WIDTH);
     this.scaled = (this.stroke_width - 0.4)/15;
     
     var delta = .1;
@@ -231,5 +235,5 @@ function Line(world, x) {
     } 
     
     this.y = Math.random() * world.height;
-    this.width = Utils.randomRange(MIN_LINE_WIDTH, MAX_LINE_WIDTH);
+    this.width = Utils.randomRange(Line.MIN_WIDTH, Line.MAX_WIDTH);
 }

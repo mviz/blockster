@@ -4,6 +4,10 @@
 //TODO: it says press space to continue even on mobile
 //TODO: touch is broken, really broken
 //TODO: multipliers shouldn't overlap anything either
+//TODO: make sure you can always jump between blocks
+//TODO: integrate with Facebook
+//TODO: make cool graphics
+//TODO: Finish refactoring
 
 //NOTE: Some of this uses Function.bind(), this is only available in new browsers.
 

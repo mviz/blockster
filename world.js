@@ -23,9 +23,25 @@ function World() {
 World.prototype.tick = function() {
     this.blockMoveSpeed = (Math.exp(this.frame/20000));
     this.manageBlocks();
+
+	this.player.tick();
+	this.player.collideBlocks(this.blocks);
+	this.collectMultipliers(this.player.collideMultipliers(this.multipliers));
+
 	this.frame += 1;
 }
 
+World.prototype.collectMultipliers = function(toCollect) {
+	for (var i = 0; i < toCollect.length; i++) {
+		var index = this.multipliers.indexOf(toCollect[i]);
+
+		if(index > -1){
+			this.player.multiplier.add();
+			this.multipliers.splice(index, 1);
+		}
+
+	}
+}
 
 World.prototype.initBlocks = function() {
 	
@@ -130,9 +146,11 @@ World.prototype.isOverlappingAny = function (block) {
 
 function Block(world){
 	this.x = world.width + 100;
-	this.y = Math.random() * world.height;
+	
 	this.width = Utils.randomRange(Block.MIN_WIDTH, Block.MAX_WIDTH);		
 	this.height = 10;
+
+	this.y = Math.random() * (world.height- this.height);
 }
 
 

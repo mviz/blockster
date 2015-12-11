@@ -1,6 +1,6 @@
 Object.defineProperty(Multiplier, "MULTIPLIER_TIMEOUT_IN_SECONDS", {value: 4});
 
-var GRAVITY = +0.01; //TODO: refactor to world and fix Player <-> World dependencies. 
+var GRAVITY = +0.01; //TODO: refactor to world
 
 function Player() {
     this.height = 16;
@@ -16,11 +16,6 @@ function Player() {
 
 Player.prototype.tick = function(world) {
 	this.applyPhysics();
-
-    this.topCollision(world.blocks);
-    this.bottomCollision(world.blocks);
-    this.multiplierCollision(world);
-
     this.updateScore();
 }
 
@@ -29,6 +24,7 @@ Player.prototype.applyPhysics = function() {
     if(this.vy < 1){
         this.vy += GRAVITY;
     }
+    
     this.y += this.vy
 }
 
@@ -37,9 +33,12 @@ Player.prototype.updateScore = function() {
     this.score += this.multiplier.value;
 }
 
+Player.prototype.collideBlocks = function(blocks) {
+    this.topCollision(blocks);
+    this.bottomCollision(blocks);
+}
 
 Player.prototype.topCollision = function(blocks){
-
     this.hasJump = false;
     for(var i = 0; i < blocks.length; i++){
         block = blocks[i];
@@ -83,38 +82,37 @@ Player.prototype.bottomCollision = function(blocks) {
     lies inside the multiplier
 */
 
-Player.prototype.multiplierCollision = function(world) {
-    var player = world.player;
-    var player_points = [{'x' : player.x + player.width, 'y' : player.y},                  //top right
-                         {'x' : player.x + player.width, 'y' : player.y + player.height/2},//middle right
-                         {'x' : player.x + player.width, 'y' : player.y + player.height},  //bottom right
-                         {'x' : player.x, 'y' : player.y + player.height},                 //bottom left
-                         {'x' : player.x, 'y' : player.y}];                                //top left
+Player.prototype.collideMultipliers = function(multipliers) {
+
+    var collidedWith = [];
+
+    var player = this;
+    var playerPoints = [{x : this.x + this.width, y : this.y},                  //top right
+                         {x : this.x + this.width, y : this.y + this.height/2},//middle right
+                         {x : this.x + this.width, y : this.y + this.height},  //bottom right
+                         {x : this.x,              y : this.y + this.height},                 //bottom left
+                         {x : this.x,              y : this.y}];                                //top left
                          // no need for middle left because that cant collide due to moving right
 
-    for(var i = 0; i < world.multipliers.length; i++) {
+    for(var i = 0; i < multipliers.length; i++) {
 
-        var multiplier = world.multipliers[i];
+        var multiplier = multipliers[i];
 
-        var multiplier_points = [{'x' : multiplier.x,                      'y' : multiplier.y + multiplier.height/2}, //left
+        var multiplierPoints = [{'x' : multiplier.x,                      'y' : multiplier.y + multiplier.height/2}, //left
                                  {'x' : multiplier.x + multiplier.width/2, 'y' : multiplier.y + multiplier.height},   //bottom
                                  {'x' : multiplier.x + multiplier.width,   'y' : multiplier.y + multiplier.height/2}, //right
                                  {'x' : multiplier.x + multiplier.width/2, 'y' : multiplier.y}                      //top
                                 ];
 
-        for(var j = 0; j <  player_points.length; j++) {
-            if(Utils.contains(player_points[j], multiplier_points)) {
-
-                player.multiplier.add();
-
-
-                world.multipliers.splice(i, 1);//TODO: this seems weird, it's in the wrong spot now
-                i--;
-    
+        for(var j = 0; j <  playerPoints.length; j++) {
+            if(Utils.contains(playerPoints[j], multiplierPoints)) {
+                collidedWith.push(multiplier);
                 break;
             }
         }
     }
+
+    return collidedWith;
 }
 
 

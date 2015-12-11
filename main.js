@@ -1,16 +1,14 @@
 //TODO: if you restart a LOT of times then you will end up breaking the stack.
-
-//TODO: blocks can appear too close to the top and bottom (some are actually overlapping)
-
-//TODO: get rid of the rest of the globals
-//TODO: fix scaling issues with game_width
+//TODO: blocks can appear too close to the top and bottom (some are actually overlapping the edges)
 //TODO: implement high score with cookies (or a node instance.....)
 //TODO: it says press space to continue even on mobile
 //TODO: touch is broken, really broken
+//TODO: multipliers shouldn't overlap anything either
 
 //NOTE: Some of this uses Function.bind(), this is only available in new browsers.
 
-var SPACE_BAR = 32;
+
+Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
 function Engine() {
     this.canvas = document.getElementById("gameCanvas");
@@ -60,12 +58,11 @@ Engine.prototype.tick = function() {
     }
 
     this.world.tick();
-    this.world.player.tick(this.world); //TODO: this shouldn't be this way, circular dependency
     this.graphics.draw();
 }
 
 Engine.prototype.keyDownHandler = function (event) {
-    if (event.keyCode == SPACE_BAR) {
+    if (event.keyCode == Engine.SPACE_BAR) {
         if (!this.paused) {
             event.preventDefault();
             this.world.player.jump();

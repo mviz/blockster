@@ -1,10 +1,8 @@
-//TODO: grouping calls to fill and stroke will yield huge performance gains if needed
-//TODO: a lot of the time we're setting fillStyle ike 8 times to the same value
+//TODO: Pre render on a seperate canvas
 
 Object.defineProperty(Graphics, "NUM_LINES", {value: 20});
 Object.defineProperty(Graphics, "MAX_MULTIPLIER_BAR_WIDTH", {value: 100});
 Object.defineProperty(Graphics, "MULTIPLIER_BAR_HEIGHT", {value: 5});
-
 Object.defineProperty(Block, "COLOR", {value: "#00A3FB"});
 Object.defineProperty(MultiplierPickup, "COLOR", {value: "#F2DB00"});
 
@@ -13,6 +11,7 @@ Object.defineProperty(Player, "BOOST_COLOR", {value: "#BF4040"});
 Object.defineProperty(Player, "HIGHLIGHT_COLOR", {value: "#FFCF70"});
 
 Object.defineProperty(Line, "COLOR", {value: "#AAAAAA"});
+
 
 Object.defineProperty(Line, "MAX_STROKE_WIDTH", {value: 2});
 Object.defineProperty(Line, "MIN_STROKE_WIDTH", {value: 0.5});
@@ -26,6 +25,7 @@ function Graphics(world, canvas,  context) {
     this.world = world;
     this.context = context;
     this.canvas = canvas;
+    this.animations = [];
 
     this.initCanvas();    
     this.initLines();
@@ -45,6 +45,7 @@ Graphics.prototype.initCanvas = function() {
     //TODO: can we abstract window?
     if(this.canvas.height > window.innerHeight){
         this.canvas.height = window.innerHeight;
+
         this.canvas.width = window.innerHeight * this.world.width / this.world.height;
     }
 
@@ -59,11 +60,12 @@ Graphics.prototype.draw = function() {
     this.clearScene();
     this.drawBackground();
 
-    this.drawAvatar();
-    this.drawBoost();
-
     this.drawBlocks();
-    this.drawMultipliers();
+    this.drawMultiplierPickups();
+    this.drawAnimations();
+
+    this.drawAvatar();
+    this.drawBoost();    
 
     this.drawHud();
 }
@@ -119,11 +121,12 @@ Graphics.prototype.drawBoost = function () {
         var tip = [c,e,d,c];
 
         this.context.fillStyle = Player.BOOST_COLOR;
+        this.context.beginPath();
         this.drawPath(body);
         this.context.fill();
 
-
         this.context.fillStyle = Player.HIGHLIGHT_COLOR;
+        this.context.beginPath();
         this.drawPath(tip);
         this.context.fill();
 
@@ -133,32 +136,34 @@ Graphics.prototype.drawBoost = function () {
 
 Graphics.prototype.drawPath = function (path) {
     this.context.moveTo(path[0].x, path[0].y);
+
     for(i = 1; i < path.length; i++){
         this.context.lineTo(path[i].x, path[i].y);
     }
 }
 
-Graphics.prototype.drawMultipliers = function(){
+Graphics.prototype.drawMultiplierPickups = function(){
+    this.context.beginPath();
+
     this.world.multipliers.forEach(function (multiplier) {
-        this.context.save();
-
-        this.context.translate(multiplier.x + multiplier.width / 2, multiplier.y + multiplier.width / 2);
-        this.context.rotate(Math.PI / 4);
-
-        this.context.fillStyle = MultiplierPickup.COLOR;
-
-        this.context.fillRect(-multiplier.width / 2, -multiplier.width / 2,
-                     multiplier.width, multiplier.width);
-        
-        this.context.restore();
+        this.drawPath(multiplier.getCorners());
     }.bind(this));
+
+    this.context.fillStyle = MultiplierPickup.COLOR;
+    this.context.fill();
 }
 
 Graphics.prototype.drawBlocks = function(){
+
+    this.context.fillStyle = Block.COLOR;
+    this.context.beginPath();
+
     this.world.blocks.forEach(function (block) {
-        this.context.fillStyle = Block.COLOR;
-        this.context.fillRect(block.x, block.y , block.width, block.height);
+        this.context.rect(block.x, block.y, block.width, block.height);
     }.bind(this));
+
+    this.context.fillStyle = Block.COLOR;
+    this.context.fill();
 }
 
 Graphics.prototype.drawScore = function () {
@@ -167,27 +172,27 @@ Graphics.prototype.drawScore = function () {
     this.context.font = "30px Arial";
     this.context.textAlign = "right";
     this.context.fillText(this.world.player.score, this.world.width, 30);
-
 }
 
 Graphics.prototype.drawMultiplier = function drawMultiplier() {
+
     var multiplier = this.world.player.multiplier;
+    this.context.fillStyle = MultiplierPickup.COLOR;
 
     if(multiplier.value != 1){
         var percentLeft = multiplier.getTimeLeft(this.world.frame) / multiplier.getTotalTime();
         var barWidth = percentLeft * Graphics.MAX_MULTIPLIER_BAR_WIDTH;
 
-        this.context.fillStyle = MultiplierPickup.COLOR;
         this.context.fillRect(this.world.width - barWidth, 55, barWidth, Graphics.MULTIPLIER_BAR_HEIGHT);
     }
 
-    this.context.fillStyle = MultiplierPickup.COLOR;
     this.context.font = "20px Arial";
     this.context.textAlign = "right";
     this.context.fillText(multiplier.value + 'x', this.world.width, 50);
 }
 
-Graphics.prototype.drawBackground = function() {
+Graphics.prototype.drawBackground = function () {
+    this.context.strokeStyle = Line.COLOR;
     
     for(i = 0 ; i < this.lines.length; i++) {
         line = this.lines[i];
@@ -196,16 +201,14 @@ Graphics.prototype.drawBackground = function() {
 
         if(line.x - 10 > this.world.width) {
             this.lines.splice(i, 1);
-        
-            this.lines.push(new Line(this.world));
+            i--;
 
-            continue;
+            this.lines.push(new Line(this.world));
         }
 
         this.context.beginPath();
-
         this.context.lineWidth = line.stroke_width;
-        this.context.strokeStyle = Line.COLOR;
+
         this.context.moveTo(line.x, line.y);
         this.context.lineTo(line.x + line.width, line.y);
         this.context.stroke();
@@ -213,10 +216,30 @@ Graphics.prototype.drawBackground = function() {
 
 }
 
+Graphics.prototype.drawAnimations = function() {
+    this.world.collectedMultipliers.forEach(function(multiplier){
+        this.animations.push(new PickupAnimation(multiplier));
+    }.bind(this));
+
+    //TODO: this is a terrible, terrible thing.
+    this.world.collectedMultipliers = [];
+
+    for(var i = 0; i < this.animations.length; i++){
+        var animation = this.animations[i];
+
+        if(animation.isFinished()) {
+            this.animations.splice(i, 1);
+        }
+
+        animation.drawFrame(this.context);
+    }
+
+}
+
 Graphics.prototype.initLines = function () {
     this.lines = [];
 
-    for(i = 0; i < Graphics.NUM_LINES; i++){
+    for(var i = 0; i < Graphics.NUM_LINES; i++){
         this.lines.push(new Line(this.world, Math.random() * this.world.width));
     }
 }
@@ -237,3 +260,37 @@ function Line(world, x) {
     this.y = Math.random() * world.height;
     this.width = Utils.randomRange(Line.MIN_WIDTH, Line.MAX_WIDTH);
 }
+
+Object.defineProperty(PickupAnimation, "ANIMATION_LENGTH", {value: 30});
+
+function PickupAnimation(multiplier) {
+    this.y = multiplier.y;
+    this.x = multiplier.x;
+    this.timeElapsed = 0;
+    this.width = this.height = 10;
+}
+
+PickupAnimation.prototype.drawFrame = function (context) {
+    //Let's draw 4 squares shooting out in directions 
+    var moveAmount = 1.5 * this.timeElapsed;
+
+    context.rect(this.x, this.y - moveAmount, this.width, this.height);
+    context.rect(this.x, this.y + moveAmount, this.width, this.height);
+    context.rect(this.x - moveAmount, this.y, this.width, this.height);
+    context.rect(this.x + moveAmount, this.y, this.width, this.height);
+
+    context.fillStyle = MultiplierPickup.COLOR;
+    context.fill();
+
+    this.timeElapsed++;
+}
+
+//TODO: this should be based off actual time elapsed per frame... or should it
+
+PickupAnimation.prototype.isFinished = function() {
+    return PickupAnimation.ANIMATION_LENGTH - this.timeElapsed < 0;
+}
+
+
+
+

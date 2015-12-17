@@ -98,14 +98,8 @@ Player.prototype.collideMultipliers = function(multipliers) {
 
         var multiplier = multipliers[i];
 
-        var multiplierPoints = [{'x' : multiplier.x,                      'y' : multiplier.y + multiplier.height/2}, //left
-                                 {'x' : multiplier.x + multiplier.width/2, 'y' : multiplier.y + multiplier.height},   //bottom
-                                 {'x' : multiplier.x + multiplier.width,   'y' : multiplier.y + multiplier.height/2}, //right
-                                 {'x' : multiplier.x + multiplier.width/2, 'y' : multiplier.y}                      //top
-                                ];
-
         for(var j = 0; j <  playerPoints.length; j++) {
-            if(Utils.contains(playerPoints[j], multiplierPoints)) {
+            if(Utils.contains(playerPoints[j], multiplier.getCorners())) {
                 collidedWith.push(multiplier);
                 break;
             }

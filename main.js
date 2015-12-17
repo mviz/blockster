@@ -1,4 +1,4 @@
-//TODO: if you restart a LOT of times then you will end up breaking the stack.
+//TODO: if you restart a LOT of times then you will end up breaking the stack. recursion yo.
 //TODO: blocks can appear too close to the top and bottom (some are actually overlapping the edges)
 //TODO: implement high score with cookies (or a node instance.....)
 //TODO: it says press space to continue even on mobile
@@ -8,6 +8,8 @@
 //TODO: integrate with Facebook
 //TODO: make cool graphics
 //TODO: Finish refactoring
+//TODO: add more animations and stuff. Maybe make the multiplier number grow bigger then get smaller. Maybe do the same with the points every 1000
+//TODO: Use requestAnimationFrame and change the jump/gravity stuff to use time differences for variable framerates
 
 //NOTE: Some of this uses Function.bind(), this is only available in new browsers.
 
@@ -78,3 +80,42 @@ Engine.prototype.keyDownHandler = function (event) {
 
 var engine = new Engine();
 engine.start();
+
+// var blocks = [];
+
+// var NUM_BLOCKS = 100;
+// var NUM_TESTS = 100;
+
+// for(var i = 0; i < NUM_BLOCKS; i++) {
+
+//     var block = new Block(engine.world);
+//     block.x = Math.random() * engine.world.width;
+//     blocks.push(block);
+
+// }
+
+// engine.world.blocks = blocks;
+
+// console.log("Blocks Created");
+
+// alert();
+
+// var start = new Date().getMilliseconds();
+
+// for(var i = 0; i < NUM_TESTS; i++){
+//     engine.graphics.drawBlocksGrouped();
+// }
+
+// var totalGrouped = new Date().getMilliseconds();
+
+// console.log("Total Grouped: " + totalGrouped);
+
+// start = new Date().getMilliseconds();
+
+// for(var i = 0; i < NUM_TESTS; i++){
+//     engine.graphics.drawBlocks();
+// }
+
+// var totalUnGrouped = new Date().getMilliseconds();
+
+// console.log("Total Ungrouped: " + totalUnGrouped);

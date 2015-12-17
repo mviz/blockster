@@ -11,12 +11,16 @@ function World() {
 	this.width = 480;
 	this.height = 320;
 
-   	this.blockMoveSpeed = 1;
+	this.frame = 0;
+
 	this.player = new Player();
     this.multipliers = [];	
+
+	this.collectedMultipliers = [];
+
 	this.blockMoveSpeed = 1;
-    this.nextBlockFrame = 0;
-	this.frame = 0;
+    this.nextBlockFrame = 0;	
+
 	this.initBlocks();
 }
 
@@ -35,11 +39,12 @@ World.prototype.collectMultipliers = function(toCollect) {
 	for (var i = 0; i < toCollect.length; i++) {
 		var index = this.multipliers.indexOf(toCollect[i]);
 
+		this.collectedMultipliers.push(this.multipliers[index]);
+
 		if(index > -1){
 			this.player.multiplier.add();
 			this.multipliers.splice(index, 1);
 		}
-
 	}
 }
 
@@ -96,28 +101,26 @@ World.prototype.generateBlock = function() {
 
 World.prototype.moveObjects = function () {
 
-	for(var i = 0; i < this.blocks.length ;i++) {
+	for (var i = 0; i < this.blocks.length ;i++) {
 
 		var block = this.blocks[i];
+		block.x -= this.blockMoveSpeed;
 
-		if(block.x + block.width < 0) {
+		if (block.x + block.width < 0) {
 			this.blocks.splice(i, 1);
 			i--;
 		}
-
-		block.x -= this.blockMoveSpeed;
 	}
 
 	for(var i = 0; i < this.multipliers.length ;i++) {
 
 		var multiplier = this.multipliers[i];
-
-		if(multiplier.x + multiplier.width < 0) {
+		multiplier.x -= this.blockMoveSpeed;
+		
+		if (multiplier.x + multiplier.width < 0) {
 			this.multipliers.splice(i, 1);
 			i--;
 		}
-
-		multiplier.x -= this.blockMoveSpeed;
 	}
 
 }
@@ -150,7 +153,7 @@ function Block(world){
 	this.width = Utils.randomRange(Block.MIN_WIDTH, Block.MAX_WIDTH);		
 	this.height = 10;
 
-	this.y = Math.random() * (world.height- this.height);
+	this.y = Math.random() * (world.height - this.height);
 }
 
 
@@ -167,8 +170,15 @@ function MultiplierPickup(block){
 	this.x = block.x + Utils.randomRange(5, block.width + 5);
 	this.y = block.y - Utils.randomRange(10, 40);
 
-	this.width = 10;
-	this.height = 10;
+	this.width = 15;
+	this.height = 15;
+}
+
+MultiplierPickup.prototype.getCorners = function() {
+	return [{x : this.x,                y : this.y + this.height/2}, //left
+		    {x : this.x + this.width/2, y : this.y},				 //top
+		    {x : this.x + this.width,   y : this.y + this.height/2}, //right
+		    {x : this.x + this.width/2, y : this.y + this.height}];  //bottom
 }
 
 /*block1 = {'x' : 10, 'width' : 10, 'y' : 10, 'height' : 10};

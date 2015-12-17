@@ -290,7 +290,3 @@ PickupAnimation.prototype.drawFrame = function (context) {
 PickupAnimation.prototype.isFinished = function() {
     return PickupAnimation.ANIMATION_LENGTH - this.timeElapsed < 0;
 }
-
-
-
-

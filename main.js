@@ -4,7 +4,7 @@
 //TODO: it says press space to continue even on mobile
 //TODO: touch is broken, really broken
 //TODO: multipliers shouldn't overlap anything either
-//TODO: make sure you can always jump between blocks
+//TODO: make sure you can always jump between blocks. What if we just drew a circle around each block and spawned them every time the last block doesn't have one (within that range), AND randomly spawna block every (1 -> rand) seconds
 //TODO: integrate with Facebook
 //TODO: make cool graphics
 //TODO: Finish refactoring
@@ -19,7 +19,7 @@ Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 function Engine() {
     this.canvas = document.getElementById("gameCanvas");
     this.context = this.canvas.getContext("2d");
-    this.frameRate = 60;
+    this.frameRate = 200;
 
     this.init();
 }
@@ -36,7 +36,7 @@ Engine.prototype.init = function() {
 }
 
 Engine.prototype.start = function() {
-    this.interval = setInterval(this.tick.bind(this), 1/(this.frameRate * 1000));
+    this.interval = setInterval(this.tick.bind(this), 1000/(this.frameRate));
 }
 
 Engine.prototype.restart = function(event) {
@@ -80,42 +80,3 @@ Engine.prototype.keyDownHandler = function (event) {
 
 var engine = new Engine();
 engine.start();
-
-// var blocks = [];
-
-// var NUM_BLOCKS = 100;
-// var NUM_TESTS = 100;
-
-// for(var i = 0; i < NUM_BLOCKS; i++) {
-
-//     var block = new Block(engine.world);
-//     block.x = Math.random() * engine.world.width;
-//     blocks.push(block);
-
-// }
-
-// engine.world.blocks = blocks;
-
-// console.log("Blocks Created");
-
-// alert();
-
-// var start = new Date().getMilliseconds();
-
-// for(var i = 0; i < NUM_TESTS; i++){
-//     engine.graphics.drawBlocksGrouped();
-// }
-
-// var totalGrouped = new Date().getMilliseconds();
-
-// console.log("Total Grouped: " + totalGrouped);
-
-// start = new Date().getMilliseconds();
-
-// for(var i = 0; i < NUM_TESTS; i++){
-//     engine.graphics.drawBlocks();
-// }
-
-// var totalUnGrouped = new Date().getMilliseconds();
-
-// console.log("Total Ungrouped: " + totalUnGrouped);

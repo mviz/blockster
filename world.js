@@ -67,7 +67,7 @@ World.prototype.initBlocks = function() {
 	}
 
 	var startingBlock = new Block(this);
-	block.y = this.player.height + 10;
+	block.y = this.player.height + 20;
 	block.width = Block.MAX_WIDTH * 2;
 	block.x = 0;
 
@@ -153,7 +153,7 @@ function Block(world){
 	this.width = Utils.randomRange(Block.MIN_WIDTH, Block.MAX_WIDTH);		
 	this.height = 10;
 
-	this.y = Math.random() * (world.height - this.height);
+	this.y = Utils.randomRange(10 + this.height, world.height - 10 - this.height); //TODO: magic numbers
 }
 
 

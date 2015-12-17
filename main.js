@@ -1,9 +1,6 @@
 //TODO: if you restart a LOT of times then you will end up breaking the stack. recursion yo.
-//TODO: blocks can appear too close to the top and bottom (some are actually overlapping the edges)
 //TODO: implement high score with cookies (or a node instance.....)
-//TODO: it says press space to continue even on mobile
-//TODO: touch is broken, really broken
-//TODO: multipliers shouldn't overlap anything either
+
 //TODO: make sure you can always jump between blocks. What if we just drew a circle around each block and spawned them every time the last block doesn't have one (within that range), AND randomly spawna block every (1 -> rand) seconds
 //TODO: integrate with Facebook
 //TODO: make cool graphics
@@ -13,6 +10,10 @@
 
 //NOTE: Some of this uses Function.bind(), this is only available in new browsers.
 
+//BUG: the game plays at different speeds on different computers
+
+//BUG: it says press space to continue even on mobile
+//BUG: touch is broken, really broken
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 

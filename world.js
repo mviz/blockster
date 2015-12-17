@@ -61,7 +61,13 @@ World.prototype.initBlocks = function() {
 			this.blocks.push(block);	
 
 			if(Math.random() > World.MULTIPLIER_PROBABILITY){
-				this.multipliers.push(new MultiplierPickup(block));
+				var multiplier;
+
+				do {
+					multiplier = new MultiplierPickup(block);
+				} while(this.isOverlappingAny(multiplier));
+
+				this.multipliers.push(multiplier);
 			}
 		}
 	}
@@ -92,7 +98,13 @@ World.prototype.generateBlock = function() {
 		} while(this.isOverlappingAny(block));
 
 		if(Math.random() > World.MULTIPLIER_PROBABILITY){
-			this.multipliers.push(new MultiplierPickup(block));
+			var multiplier;
+
+			do {
+				multiplier = new MultiplierPickup(block);
+			} while(this.isOverlappingAny(multiplier));
+
+			this.multipliers.push(multiplier);
 		}
 
 		this.blocks.push(block);
@@ -138,7 +150,7 @@ World.prototype.moveObjects = function () {
 
 World.prototype.isOverlappingAny = function (block) {
 	for(var i = 0; i < this.blocks.length; i++){
-		if(block.isOverlapping(this.blocks[i])){
+		if(this.blocks[i].isOverlapping(block)){
 			return false;
 		}
 	}
@@ -167,11 +179,10 @@ Block.prototype.isOverlapping = function (block) {
 }
 
 function MultiplierPickup(block){
-	this.x = block.x + Utils.randomRange(5, block.width + 5);
-	this.y = block.y - Utils.randomRange(10, 40);
+	this.width = this.height = 15;
 
-	this.width = 15;
-	this.height = 15;
+	this.x = block.x + Utils.randomRange(5, block.width + 5);
+	this.y = block.y - Utils.randomRange(10, 40) - this.height;
 }
 
 MultiplierPickup.prototype.getCorners = function() {

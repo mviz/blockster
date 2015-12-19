@@ -1,3 +1,5 @@
+"use strict";
+
 Object.defineProperty(Multiplier, "MULTIPLIER_TIMEOUT_IN_SECONDS", {value: 4});
 
 var GRAVITY = +0.01; //TODO: refactor to world
@@ -14,10 +16,10 @@ function Player() {
     this.score = 0;
 }
 
-Player.prototype.tick = function(world) {
+Player.prototype.tick = function() {
 	this.applyPhysics();
     this.updateScore();
-}
+};
 
 
 Player.prototype.applyPhysics = function() {
@@ -25,23 +27,24 @@ Player.prototype.applyPhysics = function() {
         this.vy += GRAVITY;
     }
     
-    this.y += this.vy
-}
+    this.y += this.vy;
+};
 
 Player.prototype.updateScore = function() {
     this.multiplier.tick();
     this.score += this.multiplier.value;
-}
+};
 
 Player.prototype.collideBlocks = function(blocks) {
     this.topCollision(blocks);
     this.bottomCollision(blocks);
-}
+};
 
 Player.prototype.topCollision = function(blocks){
     this.hasJump = false;
     for(var i = 0; i < blocks.length; i++){
-        block = blocks[i];
+        var block = blocks[i];
+
         if (this.y + this.height > block.y &&
             this.y + this.height <= block.y + block.height &&
             this.x + this.width > block.x  &&
@@ -54,12 +57,12 @@ Player.prototype.topCollision = function(blocks){
             break;
         }
     }
-}
+};
 
 Player.prototype.bottomCollision = function(blocks) {
     //TODO: this function is very similar to topCollision, maybe we can generalize it. 
     for(var i = 0; i < blocks.length; i++){
-        block = blocks[i];
+        var block = blocks[i];
         if (this.y > block.y &&
             this.y <= block.y + block.height &&
             this.x + this.width > block.x  &&
@@ -71,7 +74,7 @@ Player.prototype.bottomCollision = function(blocks) {
             break;
         }
     }
-}
+};
 
 
 /*  
@@ -85,8 +88,6 @@ Player.prototype.bottomCollision = function(blocks) {
 Player.prototype.collideMultipliers = function(multipliers) {
 
     var collidedWith = [];
-
-    var player = this;
     var playerPoints = [{x : this.x + this.width, y : this.y},                  //top right
                          {x : this.x + this.width, y : this.y + this.height/2},//middle right
                          {x : this.x + this.width, y : this.y + this.height},  //bottom right
@@ -107,12 +108,12 @@ Player.prototype.collideMultipliers = function(multipliers) {
     }
 
     return collidedWith;
-}
+};
 
 
 Player.prototype.isDead = function (world) {
 	return this.y > world.height + 5;
-}
+};
 
 Player.prototype.jump = function (event) {
 	if(event !== undefined) {
@@ -125,7 +126,7 @@ Player.prototype.jump = function (event) {
     	this.vy = -0.7;
     	this.hasBoost = false;
     }
-}
+};
 
 
 function Multiplier() {
@@ -136,11 +137,11 @@ function Multiplier() {
 
 Multiplier.prototype.getTimeLeft = function() {
 	return this.timeLeft;
-}
+};
 
 Multiplier.prototype.getTotalTime = function () {
 	return (2/(0.5 * this.value)) * Multiplier.MULTIPLIER_TIMEOUT_IN_SECONDS * 60; //TODO: magic number(frame rate to reduce dependency)
-}
+};
 
 Multiplier.prototype.tick = function() {
     this.timeLeft--;
@@ -149,9 +150,9 @@ Multiplier.prototype.tick = function() {
         this.value--;
         this.timeLeft = this.getTotalTime();
     }
-}
+};
 
 Multiplier.prototype.add = function() {
     this.value++;
     this.timeLeft = this.getTotalTime();
-}
+};

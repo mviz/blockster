@@ -1,8 +1,10 @@
+"use strict";
+
 
 Object.defineProperty(World, "INIT_BLOCKS", { value: 10});
 Object.defineProperty(World, "MIN_WAIT_FOR_BLOCK", {value: 30});
 Object.defineProperty(World, "MAX_WAIT_FOR_BLOCK", {value: 130});
-Object.defineProperty(World, "MULTIPLIER_PROBABILITY", {value: .6});
+Object.defineProperty(World, "MULTIPLIER_PROBABILITY", {value: 0.6});
 
 Object.defineProperty(Block, "MAX_WIDTH", { value: 100});
 Object.defineProperty(Block, "MIN_WIDTH", { value: 150});
@@ -33,7 +35,7 @@ World.prototype.tick = function() {
 	this.collectMultipliers(this.player.collideMultipliers(this.multipliers));
 
 	this.frame += 1;
-}
+};
 
 World.prototype.collectMultipliers = function(toCollect) {
 	for (var i = 0; i < toCollect.length; i++) {
@@ -46,7 +48,7 @@ World.prototype.collectMultipliers = function(toCollect) {
 			this.multipliers.splice(index, 1);
 		}
 	}
-}
+};
 
 World.prototype.initBlocks = function() {
 	
@@ -73,18 +75,18 @@ World.prototype.initBlocks = function() {
 	}
 
 	var startingBlock = new Block(this);
-	block.y = this.player.height + 20;
-	block.width = Block.MAX_WIDTH * 2;
-	block.x = 0;
+	startingBlock.y = this.player.height + 20;
+	startingBlock.width = Block.MAX_WIDTH * 2;
+	startingBlock.x = 0;
 
 	this.blocks.push(startingBlock);
 
-}
+};
 
 World.prototype.manageBlocks = function () {
 	this.generateBlock();
 	this.moveObjects();
-}
+};
 
 World.prototype.generateBlock = function() {
 	if(this.frame >= this.nextBlockFrame) {
@@ -109,7 +111,7 @@ World.prototype.generateBlock = function() {
 
 		this.blocks.push(block);
 	} 
-}
+};
 
 World.prototype.moveObjects = function () {
 
@@ -124,7 +126,7 @@ World.prototype.moveObjects = function () {
 		}
 	}
 
-	for(var i = 0; i < this.multipliers.length ;i++) {
+	for(i = 0; i < this.multipliers.length; i++) {
 
 		var multiplier = this.multipliers[i];
 		multiplier.x -= this.blockMoveSpeed;
@@ -135,7 +137,7 @@ World.prototype.moveObjects = function () {
 		}
 	}
 
-}
+};
 
 /*
 	Blocks can't overlap.
@@ -156,7 +158,7 @@ World.prototype.isOverlappingAny = function (block) {
 	}
 
 	return false;
-}
+};
 
 
 function Block(world){
@@ -176,7 +178,7 @@ Block.prototype.isOverlapping = function (block) {
 	}
 
 	return true;
-}
+};
 
 function MultiplierPickup(block){
 	this.width = this.height = 15;
@@ -190,7 +192,7 @@ MultiplierPickup.prototype.getCorners = function() {
 		    {x : this.x + this.width/2, y : this.y},				 //top
 		    {x : this.x + this.width,   y : this.y + this.height/2}, //right
 		    {x : this.x + this.width/2, y : this.y + this.height}];  //bottom
-}
+};
 
 /*block1 = {'x' : 10, 'width' : 10, 'y' : 10, 'height' : 10};
 block2 = {'x' : 15, 'width' : 10, 'y' : 15, 'height' : 10};

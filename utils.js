@@ -1,4 +1,6 @@
-Utils = {};
+"use strict";
+
+var Utils = {};
 
 Utils.randomRange = function(min, max) {
 	return Math.random() * (max - min) + min;
@@ -18,4 +20,4 @@ Utils.contains = function (point, points) {
     }
 
     return result;
-}
+};

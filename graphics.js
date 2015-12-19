@@ -1,5 +1,7 @@
 //TODO: Pre render on a seperate canvas
 
+"use strict";
+
 Object.defineProperty(Graphics, "NUM_LINES", {value: 20});
 Object.defineProperty(Graphics, "MAX_MULTIPLIER_BAR_WIDTH", {value: 100});
 Object.defineProperty(Graphics, "MULTIPLIER_BAR_HEIGHT", {value: 5});
@@ -16,7 +18,7 @@ Object.defineProperty(Line, "COLOR", {value: "#AAAAAA"});
 Object.defineProperty(Line, "MAX_STROKE_WIDTH", {value: 2});
 Object.defineProperty(Line, "MIN_STROKE_WIDTH", {value: 0.5});
 Object.defineProperty(Line, "MAX_SPEED", {value: 1});
-Object.defineProperty(Line, "MIN_SPEED", {value: .1});
+Object.defineProperty(Line, "MIN_SPEED", {value: 0.1});
 Object.defineProperty(Line, "MAX_WIDTH", {value: 150});
 Object.defineProperty(Line, "MIN_WIDTH", {value: 100});
 
@@ -35,7 +37,7 @@ function Graphics(world, canvas,  context) {
 Graphics.prototype.loadResources = function() {
     this.avatarImage = new Image();
     this.avatarImage.src = "resources/avatar.png";
-}
+};
 
 Graphics.prototype.initCanvas = function() {
 
@@ -50,11 +52,11 @@ Graphics.prototype.initCanvas = function() {
     }
 
     this.context.scale(this.canvas.width / this.world.width, this.canvas.height / this.world.height); 
-}
+};
 
 Graphics.prototype.clearScene = function () {
     this.context.clearRect(0,0, this.canvas.width, this.canvas.height);       
-}
+};
 
 Graphics.prototype.draw = function() {
     this.clearScene();
@@ -68,34 +70,32 @@ Graphics.prototype.draw = function() {
     this.drawBoost();    
 
     this.drawHud();
-}
+};
 
 Graphics.prototype.drawEndScene = function (score) {
     this.clearScene();
+    
     this.context.fillStyle = "#000000";
-
     this.context.font = "30px Helvetica";
     this.context.textAlign = "center";
+
     this.context.fillText(score, this.world.width/2, this.world.height/2);
-
-    this.context.font = "30px Helvetica";
-    this.context.textAlign = "center";
     this.context.fillText("Press space to continue", this.world.width/2, this.world.height/2 + 30);
-}
+};
 
 
 Graphics.prototype.drawHud = function () {
     this.drawScore();
     this.drawMultiplier();
-}
+};
 
-Graphics.prototype.drawAvatar = function draw_avatar(player) {    
+Graphics.prototype.drawAvatar = function draw_avatar() {    
     //context.fillStyle = AVATAR_COLOR;
     //context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);
 
     this.context.drawImage(this.avatarImage, this.world.player.x, this.world.player.y, 
         this.world.player.width, this.world.player.height);
-}
+};
 
 Graphics.prototype.drawBoost = function () {
     // Styling was a bit of an accident, but hey, I like it.
@@ -107,11 +107,11 @@ Graphics.prototype.drawBoost = function () {
     var player = this.world.player;
 
     if(player.vy < 0){
-        var a = {'x': 0,                              'y': 0};
-        var b = {'x': player.width,                   'y': 0};
-        var c = {'x': Math.floor(player.width/4),     'y': 7};
-        var d = {'x': Math.floor(player.width*(3/4)), 'y': 7};
-        var e = {'x': Math.floor(player.width/2),     'y': 10};
+        var a = {x: 0,                              y: 0};
+        var b = {x: player.width,                   y: 0};
+        var c = {x: Math.floor(player.width/4),     y: 7};
+        var d = {x: Math.floor(player.width*(3/4)), y: 7};
+        var e = {x: Math.floor(player.width/2),     y: 10};
         
         this.context.save();
 
@@ -132,15 +132,15 @@ Graphics.prototype.drawBoost = function () {
 
         this.context.restore();
     }
-}
+};
 
 Graphics.prototype.drawPath = function (path) {
     this.context.moveTo(path[0].x, path[0].y);
 
-    for(i = 1; i < path.length; i++){
+    for(var i = 1; i < path.length; i++){
         this.context.lineTo(path[i].x, path[i].y);
     }
-}
+};
 
 Graphics.prototype.drawMultiplierPickups = function(){
     this.context.beginPath();
@@ -151,7 +151,7 @@ Graphics.prototype.drawMultiplierPickups = function(){
 
     this.context.fillStyle = MultiplierPickup.COLOR;
     this.context.fill();
-}
+};
 
 Graphics.prototype.drawBlocks = function(){
 
@@ -164,7 +164,7 @@ Graphics.prototype.drawBlocks = function(){
 
     this.context.fillStyle = Block.COLOR;
     this.context.fill();
-}
+};
 
 Graphics.prototype.drawScore = function () {
 
@@ -172,7 +172,7 @@ Graphics.prototype.drawScore = function () {
     this.context.font = "30px Arial";
     this.context.textAlign = "right";
     this.context.fillText(this.world.player.score, this.world.width, 30);
-}
+};
 
 Graphics.prototype.drawMultiplier = function drawMultiplier() {
 
@@ -188,14 +188,14 @@ Graphics.prototype.drawMultiplier = function drawMultiplier() {
 
     this.context.font = "20px Arial";
     this.context.textAlign = "right";
-    this.context.fillText(multiplier.value + 'x', this.world.width, 50);
-}
+    this.context.fillText(multiplier.value + "x", this.world.width, 50);
+};
 
 Graphics.prototype.drawBackground = function () {
     this.context.strokeStyle = Line.COLOR;
     
-    for(i = 0 ; i < this.lines.length; i++) {
-        line = this.lines[i];
+    for(var i = 0 ; i < this.lines.length; i++) {
+        var line = this.lines[i];
 
         line.x += line.speed;
 
@@ -214,7 +214,7 @@ Graphics.prototype.drawBackground = function () {
         this.context.stroke();
     }
 
-}
+};
 
 Graphics.prototype.drawAnimations = function() {
     this.world.collectedMultipliers.forEach(function(multiplier){
@@ -234,7 +234,7 @@ Graphics.prototype.drawAnimations = function() {
         animation.drawFrame(this.context);
     }
 
-}
+};
 
 Graphics.prototype.initLines = function () {
     this.lines = [];
@@ -242,13 +242,13 @@ Graphics.prototype.initLines = function () {
     for(var i = 0; i < Graphics.NUM_LINES; i++){
         this.lines.push(new Line(this.world, Math.random() * this.world.width));
     }
-}
+};
 
 function Line(world, x) {
     this.stroke_width = Utils.randomRange(Line.MIN_STROKE_WIDTH, Line.MAX_STROKE_WIDTH);
     this.scaled = (this.stroke_width - 0.4)/15;
     
-    var delta = .1;
+    var delta = 0.1;
 
     this.speed = Utils.randomRange(this.scaled - delta, this.scaled + delta);
     this.x = x;
@@ -283,10 +283,10 @@ PickupAnimation.prototype.drawFrame = function (context) {
     context.fill();
 
     this.timeElapsed++;
-}
+};
 
 //TODO: this should be based off actual time elapsed per frame... or should it
 
 PickupAnimation.prototype.isFinished = function() {
     return PickupAnimation.ANIMATION_LENGTH - this.timeElapsed < 0;
-}
+};

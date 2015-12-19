@@ -1,19 +1,20 @@
 //TODO: if you restart a LOT of times then you will end up breaking the stack. recursion yo.
+
 //TODO: implement high score with cookies (or a node instance.....)
+//TODO: integrate with Facebook
 
 //TODO: make sure you can always jump between blocks. What if we just drew a circle around each block and spawned them every time the last block doesn't have one (within that range), AND randomly spawna block every (1 -> rand) seconds
-//TODO: integrate with Facebook
-//TODO: make cool graphics
-//TODO: Finish refactoring
-//TODO: add more animations and stuff. Maybe make the multiplier number grow bigger then get smaller. Maybe do the same with the points every 1000
-//TODO: Use requestAnimationFrame and change the jump/gravity stuff to use time differences for variable framerates
 
-//NOTE: Some of this uses Function.bind(), this is only available in new browsers.
+//TODO: make cool graphics
+//TODO: add more animations and stuff.
+//TODO: Use requestAnimationFrame and change the jump/gravity stuff to use time differences for variable framerates
 
 //BUG: the game plays at different speeds on different computers
 
 //BUG: it says press space to continue even on mobile
 //BUG: touch is broken, really broken
+
+"use strict";
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
@@ -34,11 +35,11 @@ Engine.prototype.init = function() {
     document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
     this.canvas.addEventListener("touchstart", this.world.player.jump.bind(this.world.player), false);
     this.canvas.removeEventListener("touchstart", this.restart.bind(this), false);
-}
+};
 
 Engine.prototype.start = function() {
     this.interval = setInterval(this.tick.bind(this), 1000/(this.frameRate));
-}
+};
 
 Engine.prototype.restart = function(event) {
     if(event !== undefined) {
@@ -47,7 +48,7 @@ Engine.prototype.restart = function(event) {
 
     this.init();
     this.start();
-}
+};
 
 Engine.prototype.tick = function() {
 
@@ -66,7 +67,7 @@ Engine.prototype.tick = function() {
 
     this.world.tick();
     this.graphics.draw();
-}
+}; 
 
 Engine.prototype.keyDownHandler = function (event) {
     if (event.keyCode == Engine.SPACE_BAR) {
@@ -77,7 +78,7 @@ Engine.prototype.keyDownHandler = function (event) {
             this.restart();
         }
     }
-}
+};
 
 var engine = new Engine();
 engine.start();

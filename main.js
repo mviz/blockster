@@ -9,8 +9,9 @@
 //TODO: add more animations and stuff.
 //TODO: Use requestAnimationFrame and change the jump/gravity stuff to use time differences for variable framerates
 
-//BUG: the game plays at different speeds on different computers
+//TODO: Game needs rebalancing, it's super hard to do anything now. 
 
+//BUG: the game plays at different speeds on different computers
 //BUG: it says press space to continue even on mobile
 //BUG: touch is broken, really broken
 
@@ -61,7 +62,7 @@ Engine.prototype.tick = function(timestamp) {
 
         document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
         this.canvas.addEventListener("touchstart", this.restart.bind(this), false);
-        
+
         return;
     }
 

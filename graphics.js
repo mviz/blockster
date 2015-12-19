@@ -58,13 +58,13 @@ Graphics.prototype.clearScene = function () {
     this.context.clearRect(0,0, this.canvas.width, this.canvas.height);       
 };
 
-Graphics.prototype.draw = function() {
+Graphics.prototype.draw = function(timePassed) {
     this.clearScene();
-    this.drawBackground();
+    this.drawBackground(timePassed);
 
     this.drawBlocks();
     this.drawMultiplierPickups();
-    this.drawAnimations();
+    this.drawAnimations(timePassed);
 
     this.drawAvatar();
     this.drawBoost();    
@@ -79,7 +79,7 @@ Graphics.prototype.drawEndScene = function (score) {
     this.context.font = "30px Helvetica";
     this.context.textAlign = "center";
 
-    this.context.fillText(score, this.world.width/2, this.world.height/2);
+    this.context.fillText(Math.round(score), this.world.width/2, this.world.height/2);
     this.context.fillText("Press space to continue", this.world.width/2, this.world.height/2 + 30);
 };
 
@@ -171,7 +171,7 @@ Graphics.prototype.drawScore = function () {
     this.context.fillStyle = Player.COLOR;
     this.context.font = "30px Arial";
     this.context.textAlign = "right";
-    this.context.fillText(this.world.player.score, this.world.width, 30);
+    this.context.fillText(Math.round(this.world.player.score), this.world.width, 30);
 };
 
 Graphics.prototype.drawMultiplier = function drawMultiplier() {
@@ -191,13 +191,13 @@ Graphics.prototype.drawMultiplier = function drawMultiplier() {
     this.context.fillText(multiplier.value + "x", this.world.width, 50);
 };
 
-Graphics.prototype.drawBackground = function () {
+Graphics.prototype.drawBackground = function (timePassed) {
     this.context.strokeStyle = Line.COLOR;
     
     for(var i = 0 ; i < this.lines.length; i++) {
         var line = this.lines[i];
 
-        line.x += line.speed;
+        line.x += line.speed * timePassed;
 
         if(line.x - 10 > this.world.width) {
             this.lines.splice(i, 1);
@@ -216,7 +216,7 @@ Graphics.prototype.drawBackground = function () {
 
 };
 
-Graphics.prototype.drawAnimations = function() {
+Graphics.prototype.drawAnimations = function(timePassed) {
     this.world.collectedMultipliers.forEach(function(multiplier){
         this.animations.push(new PickupAnimation(multiplier));
     }.bind(this));
@@ -231,7 +231,7 @@ Graphics.prototype.drawAnimations = function() {
             this.animations.splice(i, 1);
         }
 
-        animation.drawFrame(this.context);
+        animation.drawFrame(this.context, timePassed);
     }
 
 };
@@ -261,7 +261,7 @@ function Line(world, x) {
     this.width = Utils.randomRange(Line.MIN_WIDTH, Line.MAX_WIDTH);
 }
 
-Object.defineProperty(PickupAnimation, "ANIMATION_LENGTH", {value: 30});
+Object.defineProperty(PickupAnimation, "ANIMATION_LENGTH", {value: 90});
 
 function PickupAnimation(multiplier) {
     this.y = multiplier.y;
@@ -270,9 +270,9 @@ function PickupAnimation(multiplier) {
     this.width = this.height = 10;
 }
 
-PickupAnimation.prototype.drawFrame = function (context) {
+PickupAnimation.prototype.drawFrame = function (context, timePassed) {
     //Let's draw 4 squares shooting out in directions 
-    var moveAmount = 1.5 * this.timeElapsed;
+    var moveAmount = 1.2 * this.timeElapsed;
 
     context.rect(this.x, this.y - moveAmount, this.width, this.height);
     context.rect(this.x, this.y + moveAmount, this.width, this.height);
@@ -282,7 +282,7 @@ PickupAnimation.prototype.drawFrame = function (context) {
     context.fillStyle = MultiplierPickup.COLOR;
     context.fill();
 
-    this.timeElapsed++;
+    this.timeElapsed += timePassed;
 };
 
 //TODO: this should be based off actual time elapsed per frame... or should it

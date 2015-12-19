@@ -38,7 +38,7 @@ Engine.prototype.init = function() {
 };
 
 Engine.prototype.start = function() {
-    this.interval = setInterval(this.tick.bind(this), 1000/(this.frameRate));
+    requestAnimationFrame(this.tick.bind(this));
 };
 
 Engine.prototype.restart = function(event) {
@@ -50,7 +50,9 @@ Engine.prototype.restart = function(event) {
     this.start();
 };
 
-Engine.prototype.tick = function() {
+Engine.prototype.tick = function(timestamp) {
+    var timePassed = timestamp - (this.prev | 0);
+    this.prev = timestamp;
 
     if(this.world.player.isDead(this.world)) {
 
@@ -59,14 +61,14 @@ Engine.prototype.tick = function() {
 
         document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
         this.canvas.addEventListener("touchstart", this.restart.bind(this), false);
-
-        clearInterval(this.interval);
-
+        
         return;
     }
 
-    this.world.tick();
-    this.graphics.draw();
+    this.world.tick(timePassed);
+    this.graphics.draw(timePassed);
+
+    requestAnimationFrame(this.tick.bind(this));
 }; 
 
 Engine.prototype.keyDownHandler = function (event) {

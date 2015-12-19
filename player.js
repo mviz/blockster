@@ -1,38 +1,37 @@
 "use strict";
 
 Object.defineProperty(Multiplier, "MULTIPLIER_TIMEOUT_IN_SECONDS", {value: 4});
-
-var GRAVITY = +0.01; //TODO: refactor to world
+Object.defineProperty(Player, "MAX_VELOCITY", {value : 0.7});
+var GRAVITY = 0.0001; //TODO: refactor to world
 
 function Player() {
     this.height = 16;
     this.width = 16;
     this.x = 50;
     this.y = 0;
-    this.vy = 1;
+    this.vy = 0;
     this.hasJump = false;
     this.hasBoost = true;
     this.multiplier = new Multiplier();
     this.score = 0;
 }
 
-Player.prototype.tick = function() {
-	this.applyPhysics();
-    this.updateScore();
+Player.prototype.tick = function(timePassed) {
+	this.applyPhysics(timePassed);
+    this.updateScore(timePassed);
 };
 
-
-Player.prototype.applyPhysics = function() {
-    if(this.vy < 1){
-        this.vy += GRAVITY;
+Player.prototype.applyPhysics = function(timePassed) {
+    if(this.vy < Player.MAX_VELOCITY){
+        this.vy += GRAVITY * timePassed;
     }
     
-    this.y += this.vy;
+    this.y += this.vy * timePassed;
 };
 
-Player.prototype.updateScore = function() {
-    this.multiplier.tick();
-    this.score += this.multiplier.value;
+Player.prototype.updateScore = function(timePassed) {
+    this.multiplier.tick(timePassed);
+    this.score += this.multiplier.value * timePassed;
 };
 
 Player.prototype.collideBlocks = function(blocks) {
@@ -121,9 +120,9 @@ Player.prototype.jump = function (event) {
 	}
 
 	if(this.hasJump){
-    	this.vy = -1;
+    	this.vy = -0.1;
     } else if (this.hasBoost){
-    	this.vy = -0.7;
+    	this.vy = -0.07;
     	this.hasBoost = false;
     }
 };
@@ -143,13 +142,13 @@ Multiplier.prototype.getTotalTime = function () {
 	return (2/(0.5 * this.value)) * Multiplier.MULTIPLIER_TIMEOUT_IN_SECONDS * 60; //TODO: magic number(frame rate to reduce dependency)
 };
 
-Multiplier.prototype.tick = function() {
-    this.timeLeft--;
-    
+Multiplier.prototype.tick = function(timePassed) {    
     if(this.value > 1 && this.timeLeft <= 0){
         this.value--;
         this.timeLeft = this.getTotalTime();
     }
+
+    this.timeLeft -= timePassed;
 };
 
 Multiplier.prototype.add = function() {

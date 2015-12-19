@@ -20,17 +20,17 @@ function World() {
 
 	this.collectedMultipliers = [];
 
-	this.blockMoveSpeed = 1;
+	this.blockMoveSpeed = 0.1;
     this.nextBlockFrame = 0;	
 
 	this.initBlocks();
 }
 
-World.prototype.tick = function() {
-    this.blockMoveSpeed = (Math.exp(this.frame/20000));
-    this.manageBlocks();
+World.prototype.tick = function(timePassed) {
+    this.blockMoveSpeed = (Math.exp(this.frame/20000)) / 10;
+    this.manageBlocks(timePassed);
 
-	this.player.tick();
+	this.player.tick(timePassed);
 	this.player.collideBlocks(this.blocks);
 	this.collectMultipliers(this.player.collideMultipliers(this.multipliers));
 
@@ -83,9 +83,9 @@ World.prototype.initBlocks = function() {
 
 };
 
-World.prototype.manageBlocks = function () {
+World.prototype.manageBlocks = function (timePassed) {
 	this.generateBlock();
-	this.moveObjects();
+	this.moveObjects(timePassed);
 };
 
 World.prototype.generateBlock = function() {
@@ -113,12 +113,12 @@ World.prototype.generateBlock = function() {
 	} 
 };
 
-World.prototype.moveObjects = function () {
+World.prototype.moveObjects = function (timePassed) {
 
 	for (var i = 0; i < this.blocks.length ;i++) {
 
 		var block = this.blocks[i];
-		block.x -= this.blockMoveSpeed;
+		block.x -= this.blockMoveSpeed * timePassed;
 
 		if (block.x + block.width < 0) {
 			this.blocks.splice(i, 1);
@@ -129,7 +129,7 @@ World.prototype.moveObjects = function () {
 	for(i = 0; i < this.multipliers.length; i++) {
 
 		var multiplier = this.multipliers[i];
-		multiplier.x -= this.blockMoveSpeed;
+		multiplier.x -= this.blockMoveSpeed * timePassed;
 		
 		if (multiplier.x + multiplier.width < 0) {
 			this.multipliers.splice(i, 1);

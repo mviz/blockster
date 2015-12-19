@@ -7,13 +7,11 @@
 
 //TODO: make cool graphics
 //TODO: add more animations and stuff.
-//TODO: Use requestAnimationFrame and change the jump/gravity stuff to use time differences for variable framerates
-
 //TODO: Game needs rebalancing, it's super hard to do anything now. 
 
-//BUG: the game plays at different speeds on different computers
 //BUG: it says press space to continue even on mobile
 //BUG: touch is broken, really broken
+//BUG: the screen has scrollbars. Canvas isn't resized properly. 
 
 "use strict";
 
@@ -73,9 +71,10 @@ Engine.prototype.tick = function(timestamp) {
 }; 
 
 Engine.prototype.keyDownHandler = function (event) {
+    event.preventDefault();
+    
     if (event.keyCode == Engine.SPACE_BAR) {
         if (!this.paused) {
-            event.preventDefault();
             this.world.player.jump();
         } else {
             this.restart();

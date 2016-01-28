@@ -35,9 +35,10 @@ function Graphics(world, canvas,  context) {
     this.canvas = canvas;
     this.animations = [];
 
-    this.initCanvas();
     this.initLines();
     this.loadResources();
+
+    this.resizeCanvas();
 }
 
 Graphics.prototype.loadResources = function() {
@@ -45,12 +46,12 @@ Graphics.prototype.loadResources = function() {
     this.avatarImage.src = "resources/avatar.png";
 };
 
-Graphics.prototype.initCanvas = function() {
+Graphics.prototype.resizeCanvas = function() {
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerWidth * this.world.height/this.world.width;
 
-    //TODO: can we abstract window?
+    //TODO: can we abstract/inject window?
     if(this.canvas.height > window.innerHeight){
         this.canvas.height = window.innerHeight;
 
@@ -58,6 +59,8 @@ Graphics.prototype.initCanvas = function() {
     }
 
     this.context.scale(this.canvas.width / this.world.width, this.canvas.height / this.world.height);
+
+    this.draw(0);
 };
 
 Graphics.prototype.clearScene = function () {
@@ -66,16 +69,21 @@ Graphics.prototype.clearScene = function () {
 
 Graphics.prototype.draw = function(timePassed) {
     this.clearScene();
-    this.drawBackground(timePassed);
 
-    this.drawBlocks();
-    this.drawMultiplierPickups();
-    this.drawAnimations(timePassed);
+    if(this.world.player.isDead(this.world)) {
+        this.drawEndScene(this.world.player.score);
+    } else {
+        this.drawBackground(timePassed);
 
-    this.drawAvatar();
-    this.drawBoost();
+        this.drawBlocks();
+        this.drawMultiplierPickups();
+        this.drawAnimations(timePassed);
 
-    this.drawHud();
+        this.drawAvatar();
+        this.drawBoost();
+
+        this.drawHud();
+    }
 };
 
 Graphics.prototype.drawEndScene = function (score) {

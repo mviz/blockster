@@ -18,8 +18,6 @@
 
 //BUG: it says press space to continue even on mobile
 //BUG: touch is broken, really broken
-//BUG: the screen has scrollbars. Canvas isn't resized properly.
-
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
@@ -34,11 +32,11 @@ Engine.prototype.init = function() {
     this.world = new World();
     this.graphics = new Graphics(this.world, this.canvas, this.context);
 
-    this.paused = false;
+    window.addEventListener("resize", this.graphics.resizeCanvas());
 
     this.prev = null;
 
-    document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
+    document.addEventListener("keypress", this.keyDownHandler.bind(this), false);
     this.canvas.addEventListener("touchstart", this.world.player.jump.bind(this.world.player), false);
     this.canvas.removeEventListener("touchstart", this.restart.bind(this), false);
 };
@@ -64,17 +62,10 @@ Engine.prototype.tick = function(timestamp) {
     var deltaTime = timestamp - this.prev;
     this.prev = timestamp;
 
-    if(this.world.player.isDead(this.world)) {
-        this.graphics.drawEndScene(this.world.player.score);
-        this.paused = true;
-
-        document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
-        this.canvas.addEventListener("touchstart", this.restart.bind(this), false);
-
-        return;
+    if(!this.world.player.isDead(this.world)) {
+        this.world.tick(deltaTime);
     }
 
-    this.world.tick(deltaTime);
     this.graphics.draw(deltaTime);
 
     requestAnimationFrame(this.tick.bind(this));
@@ -82,7 +73,7 @@ Engine.prototype.tick = function(timestamp) {
 
 Engine.prototype.keyDownHandler = function (event) {
     if (event.keyCode == Engine.SPACE_BAR) {
-        if (!this.paused) {
+        if (!this.world.player.isDead(this.world)) {
             this.world.player.jump();
             event.preventDefault();
         } else {

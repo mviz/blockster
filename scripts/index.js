@@ -16,7 +16,6 @@
 //TODO: add more animations and stuff.
 //TODO: Game needs rebalancing, it's super hard to do anything now.
 
-//BUG: there's a bug when starting a new game, it starts with time already passed.
 //BUG: it says press space to continue even on mobile
 //BUG: touch is broken, really broken
 //BUG: the screen has scrollbars. Canvas isn't resized properly.
@@ -27,7 +26,6 @@ Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 function Engine() {
     this.canvas = document.getElementById("gameCanvas");
     this.context = this.canvas.getContext("2d");
-    this.frameRate = 200;
 
     this.init();
 }
@@ -37,6 +35,8 @@ Engine.prototype.init = function() {
     this.graphics = new Graphics(this.world, this.canvas, this.context);
 
     this.paused = false;
+
+    this.prev = null;
 
     document.addEventListener("keydown", this.keyDownHandler.bind(this), false);
     this.canvas.addEventListener("touchstart", this.world.player.jump.bind(this.world.player), false);
@@ -57,11 +57,14 @@ Engine.prototype.restart = function(event) {
 };
 
 Engine.prototype.tick = function(timestamp) {
-    var timePassed = timestamp - (this.prev | 0);
+    if(!this.prev) {
+        this.prev = timestamp;
+    }
+
+    var deltaTime = timestamp - this.prev;
     this.prev = timestamp;
 
     if(this.world.player.isDead(this.world)) {
-
         this.graphics.drawEndScene(this.world.player.score);
         this.paused = true;
 
@@ -71,8 +74,8 @@ Engine.prototype.tick = function(timestamp) {
         return;
     }
 
-    this.world.tick(timePassed);
-    this.graphics.draw(timePassed);
+    this.world.tick(deltaTime);
+    this.graphics.draw(deltaTime);
 
     requestAnimationFrame(this.tick.bind(this));
 };

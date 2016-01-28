@@ -5,18 +5,16 @@
 
 "use strict";
 
-//TODO: if you restart a LOT of times then you will end up breaking the stack. recursion yo.
-
 //TODO: implement high score with cookies (or a node instance.....)
 //TODO: integrate with Facebook
 
-//TODO: make sure you can always jump between blocks. What if we just drew a circle around each block and spawned them every time the last block doesn't have one (within that range), AND randomly spawna block every (1 -> rand) seconds
+//TODO: make sure you can always jump between blocks. What if we just drew a
+//circle around each block and spawned them every time the last block doesn't
+//have one (within that range), AND randomly spawna block every (1 -> rand) seconds
 
 //TODO: make cool graphics
 //TODO: add more animations and stuff.
 //TODO: Game needs rebalancing, it's super hard to do anything now.
-
-//BUG: it says press space to continue even on mobile
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 

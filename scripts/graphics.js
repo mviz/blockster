@@ -15,7 +15,6 @@ Object.defineProperty(Block, "COLOR", {value: "#00A3FB"});
 Object.defineProperty(MultiplierPickup, "COLOR", {value: "#F2DB00"});
 
 Object.defineProperty(Player, "COLOR", {value: "#3DB845"});
-Object.defineProperty(Player, "BOOST_COLOR", {value: "#BF4040"});
 Object.defineProperty(Player, "HIGHLIGHT_COLOR", {value: "#FFCF70"});
 
 Object.defineProperty(Line, "COLOR", {value: "#AAAAAA"});
@@ -134,12 +133,11 @@ Graphics.prototype.drawBoost = function () {
         var body = [a,b,d,c,a];
         var tip = [c,e,d,c];
 
-        this.context.fillStyle = Player.BOOST_COLOR;
+        this.context.fillStyle = Player.HIGHLIGHT_COLOR;
         this.context.beginPath();
         this.drawPath(body);
         this.context.fill();
 
-        this.context.fillStyle = Player.HIGHLIGHT_COLOR;
         this.context.beginPath();
         this.drawPath(tip);
         this.context.fill();

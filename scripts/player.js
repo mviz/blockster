@@ -27,7 +27,6 @@ function Player() {
 
     this.touchingBlock = undefined;
     this.jumpAccelTimeLeft = 0;
-    this.hasJump = false;
     this.hasBoost = true;
     this.multiplier = new Multiplier();
     this.score = 0;
@@ -76,7 +75,6 @@ Player.prototype.collideBlocks = function(blocks) {
                 this.y = block.y + block.height + 2;
             } else {
                 this.touchingBlock = block;
-                this.hasJump = true;
                 this.hasBoost = true;
             }
 
@@ -146,9 +144,8 @@ Player.prototype.jump = function (event) {
 		event.preventDefault();
 	}
 
-	if(this.hasJump){
+	if(this.touchingBlock){
     	this.jumpAccelTimeLeft = Player.JUMP_LENGTH_IN_MILLISECONDS;
-        this.hasJump = false;
     } else if (this.hasBoost){
         this.jumpAccelTimeLeft = Player.JUMP_LENGTH_IN_MILLISECONDS * 0.8;
     	this.hasBoost = false;

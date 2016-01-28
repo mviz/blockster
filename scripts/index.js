@@ -16,6 +16,9 @@
 //TODO: add more animations and stuff.
 //TODO: Game needs rebalancing, it's super hard to do anything now.
 
+//TODO: Make it responsive so that we maximize our width. The goal is to make
+//landscape on a phone look less terrible
+
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
 function Engine() {

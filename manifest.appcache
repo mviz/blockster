@@ -1,0 +1,16 @@
+CACHE MANIFEST
+# 12:31 01/30/2016 v1
+
+CACHE:
+scripts/graphics.js
+scripts/index.js
+scripts/player.js
+scripts/utils.js
+scripts/world.js
+scripts/app.js
+index.html
+style/blockster.css
+resources/avatar.png
+
+NETWORK:
+*

@@ -4,7 +4,7 @@
 
 "use strict";
 
-var GRAVITY_IN_MILLISECONDS = 0.0007;
+var GRAVITY_IN_MILLISECONDS = 0.0005;
 
 /*
     Our maximum fall speed is approximately worldheight / expected fall time (2 seconds at max speed is super slow but reaasonable) / 1000 because of seconds not milliseconds
@@ -39,7 +39,6 @@ Player.prototype.tick = function(deltaTime, blocks) {
     this.updateScore(deltaTime);
 };
 
-//TODO: what happens if we go a little into a block? Could we do predictive collisions to avoid the jitter?
 Player.prototype.applyPhysics = function(deltaTime) {
 
     //Apply acceleration, update velocity.
@@ -54,7 +53,7 @@ Player.prototype.applyPhysics = function(deltaTime) {
     }
 
     //Apply velocity, update position.
-    if(this.touchingBlock) {
+    if(this.touchingBlock && this.vy >= 0) {
         this.y = this.touchingBlock.y - this.height;
     } else {
         this.y += this.vy * deltaTime;
@@ -67,25 +66,19 @@ Player.prototype.updateScore = function(deltaTime) {
 };
 
 Player.prototype.collideBlocks = function(blocks) {
-    this.topCollision(blocks);
-    this.bottomCollision(blocks);
-};
-
-Player.prototype.topCollision = function(blocks){
     this.touchingBlock = undefined;
 
-    for(var i = 0; i < blocks.length; i++){
+    for(var i = 0; i < blocks.length; i++) {
         var block = blocks[i];
-
-        if (this.y + this.height > block.y &&
-            this.y + this.height <= block.y + block.height &&
-            this.x + this.width > block.x  &&
-            this.x <= block.x + block.width
-            ){
-
-            this.touchingBlock = block;
-            this.hasJump = true;
-            this.hasBoost = true;
+        if(block.isOverlapping(this)) {
+            if(this.vy < 0) {
+                this.vy = 0;
+                this.y = block.y + block.height + 2;
+            } else {
+                this.touchingBlock = block;
+                this.hasJump = true;
+                this.hasBoost = true;
+            }
 
             break;
         }

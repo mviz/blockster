@@ -94,7 +94,7 @@ Graphics.prototype.drawEndScene = function (score) {
     this.context.textAlign = "center";
 
     this.context.fillText(Math.round(score), this.world.width/2, this.world.height/2);
-    this.context.fillText("Press space to continue", this.world.width/2, this.world.height/2 + 30);
+    this.context.fillText("Touch or press space to continue", this.world.width/2, this.world.height/2 + 30);
 };
 
 

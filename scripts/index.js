@@ -17,7 +17,6 @@
 //TODO: Game needs rebalancing, it's super hard to do anything now.
 
 //BUG: it says press space to continue even on mobile
-//BUG: touch is broken, really broken
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
@@ -37,8 +36,7 @@ Engine.prototype.init = function() {
     this.prev = null;
 
     document.addEventListener("keypress", this.keyDownHandler.bind(this), false);
-    this.canvas.addEventListener("touchstart", this.world.player.jump.bind(this.world.player), false);
-    this.canvas.removeEventListener("touchstart", this.restart.bind(this), false);
+    this.canvas.addEventListener("touchstart", this.keyDownHandler.bind(this), false);
 };
 
 Engine.prototype.start = function() {
@@ -72,7 +70,7 @@ Engine.prototype.tick = function(timestamp) {
 };
 
 Engine.prototype.keyDownHandler = function (event) {
-    if (event.keyCode == Engine.SPACE_BAR) {
+    if (event.keyCode == Engine.SPACE_BAR || event.type === "touchstart") {
         if (!this.world.player.isDead(this.world)) {
             this.world.player.jump();
             event.preventDefault();

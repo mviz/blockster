@@ -4,6 +4,8 @@
 /* global MultiplierPickup */
 /* global Player */
 /* global Utils */
+/* global HighScores */
+
 "use strict";
 
 //TODO: Pre render on a seperate canvas
@@ -92,8 +94,22 @@ Graphics.prototype.drawEndScene = function (score) {
     this.context.font = "30px Helvetica";
     this.context.textAlign = "center";
 
-    this.context.fillText(Math.round(score), this.world.width/2, this.world.height/2);
-    this.context.fillText("Touch or press space to continue", this.world.width/2, this.world.height/2 + 30);
+    this.context.save();
+
+    if(Math.round(score) === HighScores.getHighestScore()) {
+        this.context.fillText("You set a new high score: " + Math.round(score), this.world.width/2, this.world.height/2);
+        this.context.translate(0,30);
+    } else {
+        this.context.fillText("High Score: " + HighScores.getHighestScore(), this.world.width/2, this.world.height/2);
+        this.context.translate(0,30);
+        this.context.fillText("Current Score: " + Math.round(score), this.world.width/2, this.world.height/2);
+        this.context.translate(0,30);
+    }
+
+    this.context.font = "20px Helvetica";
+    this.context.fillText("Touch or press space to continue", this.world.width/2, this.world.height/2);
+
+    this.context.restore();
 };
 
 
@@ -103,11 +119,8 @@ Graphics.prototype.drawHud = function () {
 };
 
 Graphics.prototype.drawAvatar = function draw_avatar() {
-    //context.fillStyle = AVATAR_COLOR;
-    //context.fillRect(player.x , player.y , player.WIDTH, player.HEIGHT);
-
     this.context.drawImage(this.avatarImage, this.world.player.x, this.world.player.y,
-        this.world.player.width, this.world.player.height);
+    this.world.player.width, this.world.player.height);
 };
 
 Graphics.prototype.drawBoost = function () {
@@ -294,8 +307,6 @@ PickupAnimation.prototype.drawFrame = function (context, timePassed) {
     context.fillStyle = MultiplierPickup.COLOR;
     context.fill();
 };
-
-//TODO: this should be based off actual time elapsed per frame...
 
 PickupAnimation.prototype.isFinished = function() {
     return PickupAnimation.ANIMATION_LENGTH - this.timeElapsed < 0;

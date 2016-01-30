@@ -1,5 +1,6 @@
 /* jshint browser: true */
 /* jshint -W097 */
+/* global HighScores */
 /* global World */
 /* global Graphics */
 
@@ -19,22 +20,28 @@
 //TODO: Make it responsive so that we maximize our width. The goal is to make
 //landscape on a phone look less terrible
 
+//BUG: There's a really weird bug where the game restarts using touch randomly...
+
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
 function Engine() {
     this.canvas = document.getElementById("gameCanvas");
     this.context = this.canvas.getContext("2d");
+    HighScores.init();
 
     this.init();
 }
 
 Engine.prototype.init = function() {
+
+
     this.world = new World();
     this.graphics = new Graphics(this.world, this.canvas, this.context);
 
     window.addEventListener("resize", this.graphics.resizeCanvas());
 
     this.prev = null;
+    this.playerPrevAlive = true;
 
     document.addEventListener("keypress", this.keyDownHandler.bind(this), false);
     this.canvas.addEventListener("touchstart", this.keyDownHandler.bind(this), false);
@@ -63,6 +70,10 @@ Engine.prototype.tick = function(timestamp) {
 
     if(!this.world.player.isDead(this.world)) {
         this.world.tick(deltaTime);
+    } else if(this.playerPrevAlive) {
+
+        HighScores.addScore(this.world.player.score);
+        this.playerPrevAlive = false;
     }
 
     this.graphics.draw(deltaTime);

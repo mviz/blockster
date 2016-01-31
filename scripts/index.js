@@ -14,8 +14,6 @@
 //TODO: make platforms skinnier then make it so you can go through the bottom of them?
 //This would solve jitter problems and stuff.
 
-//TODO: pause when you change tabs etc. (the canvas loses focus)
-
 //BUG: There's a really weird bug where the game restarts using touch randomly...
 //BUG: Sometimes you fall through blocks...
 
@@ -37,15 +35,24 @@ Engine.prototype.init = function() {
 
     window.addEventListener("resize", this.graphics.resizeCanvas());
 
-    this.prev = null;
     this.playerPrevAlive = true;
 
+    document.addEventListener("visibilitychange", this.pause.bind(this), false);
     document.addEventListener("keypress", this.keyDownHandler.bind(this), false);
     this.canvas.addEventListener("touchstart", this.keyDownHandler.bind(this), false);
 };
 
+Engine.prototype.pause = function() {
+    if(!document.hidden) {
+        this.start();
+    } else {
+        cancelAnimationFrame(this.requestAnimationFrameId);
+    }
+};
+
 Engine.prototype.start = function() {
-    requestAnimationFrame(this.tick.bind(this));
+    this.prev = null;
+    this.requestAnimationFrameId = requestAnimationFrame(this.tick.bind(this));
 };
 
 Engine.prototype.restart = function(event) {
@@ -75,7 +82,7 @@ Engine.prototype.tick = function(timestamp) {
 
     this.graphics.draw(deltaTime);
 
-    requestAnimationFrame(this.tick.bind(this));
+    this.requestAnimationFrameId = requestAnimationFrame(this.tick.bind(this));
 };
 
 Engine.prototype.keyDownHandler = function (event) {

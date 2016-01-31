@@ -4,8 +4,6 @@
 
 "use strict";
 
-var GRAVITY_IN_MILLISECONDS = 0.0005;
-
 /*
     Our maximum fall speed is approximately worldheight / expected fall time (2 seconds at max speed is super slow but reaasonable) / 1000 because of seconds not milliseconds
     (320/2/1000)
@@ -13,7 +11,8 @@ var GRAVITY_IN_MILLISECONDS = 0.0005;
 
 Object.defineProperty(Multiplier, "MULTIPLIER_TIMEOUT_IN_MILLISECONDS", {value: 4000});
 Object.defineProperty(Player, "MAX_VELOCITY", {value : 0.3});
-Object.defineProperty(Player, "JUMP_ACCEL_IN_MILLISECONDS", {value : -GRAVITY_IN_MILLISECONDS});
+Object.defineProperty(Player, "GRAVITY_PER_MILLISECOND", {value : 0.0005});
+Object.defineProperty(Player, "JUMP_ACCEL_PER_MILLISECOND", {value : -Player.GRAVITY_PER_MILLISECOND});
 Object.defineProperty(Player, "JUMP_LENGTH_IN_MILLISECONDS", {value : 400});
 
 
@@ -32,6 +31,35 @@ function Player() {
     this.score = 0;
 }
 
+Player.simulateJump = function (t, y0, vy0, a, g, vmax, boostLength) {
+	if(t <= boostLength) {
+		return y0 + vy0 * t + 0.5 * a * t * t;
+	} else {
+		//vy0 = 0;
+		return Player.simulateFall(t - boostLength,
+			Player.simulateJump(boostLength, y0, vy0, a, g, vmax, boostLength), boostLength * a + vy0, g, vmax);
+	}
+};
+
+//TODO: use net accel rather than just straight up.
+Player.simulateFall = function (t, y0, vy0, g, vmax) {
+	var vmaxat = (vmax - vy0) / g;
+
+	if(t <= vmaxat) {
+		return y0 + t * vy0 + 0.5 * g * t * t;
+	} else {
+		return vmax * (t - vmaxat) + Player.simulateFall(vmaxat, y0, vy0, g, vmax);
+	}
+};
+
+Player.simulateJumpAndBoost = function (t, y0, vy0, a, g, vmax, boostLength) {
+	if(t <= boostLength) {
+		return Player.simulateJump(t, y0, vy0, a, g, vmax, boostLength);
+	} else {
+		return Player.simulateJump(t - boostLength, Player.simulateJump(boostLength, y0, vy0, a, g, vmax, boostLength), a * boostLength + vy0, a, g, vmax, boostLength);
+	}
+};
+
 Player.prototype.tick = function(deltaTime, blocks) {
     this.collideBlocks(blocks);
   	this.applyPhysics(deltaTime);
@@ -43,12 +71,12 @@ Player.prototype.applyPhysics = function(deltaTime) {
     //Apply acceleration, update velocity.
     if(this.jumpAccelTimeLeft > 0) {
         var accelAmount = Math.min(deltaTime, this.jumpAccelTimeLeft);
-        this.vy += Player.JUMP_ACCEL_IN_MILLISECONDS * accelAmount;
+        this.vy += Player.JUMP_ACCEL_PER_MILLISECOND * accelAmount;
         this.jumpAccelTimeLeft -= deltaTime;
     } else if(this.touchingBlock){
         this.vy = 0;
     } else if(this.vy < Player.MAX_VELOCITY) {
-        this.vy = Math.min(this.vy + GRAVITY_IN_MILLISECONDS * deltaTime, Player.MAX_VELOCITY);
+        this.vy = Math.min(this.vy + Player.GRAVITY_PER_MILLISECOND * deltaTime, Player.MAX_VELOCITY);
     }
 
     //Apply velocity, update position.
@@ -147,7 +175,7 @@ Player.prototype.jump = function (event) {
 	if(this.touchingBlock){
     	this.jumpAccelTimeLeft = Player.JUMP_LENGTH_IN_MILLISECONDS;
     } else if (this.hasBoost){
-        this.jumpAccelTimeLeft = Player.JUMP_LENGTH_IN_MILLISECONDS * 0.8;
+        this.jumpAccelTimeLeft = Player.JUMP_LENGTH_IN_MILLISECONDS;
     	this.hasBoost = false;
     }
 };

@@ -5,18 +5,30 @@
 
 "use strict";
 
+//TODO: change block minimum distance so that it measures from the center or something.
+//TODO: change initial block generation to be procedural so that there's a guaranteed path to the next ones.. Or we
+//Could make a really long block as an initial start.
 
-Object.defineProperty(World, "INIT_BLOCKS", { value: 10});
+Object.defineProperty(World, "INIT_BLOCKS", {value: 10});
+//TODO: Change block generation to this because then we can use as wide screen as we want
+//Use an exponential function with regards to distance travelled since last block, st. at AVG_BLOCKS_PER_100PX the probability of
+//A new block is essentially 100%
+Object.defineProperty(World, "AVG_BLOCKS_PER_100PX", {value: 30});
+
+//TODO: remove this because otherwise we won't ever
 Object.defineProperty(World, "MIN_WAIT_FOR_BLOCK", {value: 30});
 Object.defineProperty(World, "MAX_WAIT_FOR_BLOCK", {value: 130});
+
 Object.defineProperty(World, "MULTIPLIER_PROBABILITY", {value: 0.6});
 
-Object.defineProperty(Block, "MAX_WIDTH", { value: 100});
-Object.defineProperty(Block, "MIN_WIDTH", { value: 150});
+Object.defineProperty(World, "MIN_BLOCK_DIST", {value: 50});
+
+Object.defineProperty(Block, "MAX_WIDTH", {value: 100});
+Object.defineProperty(Block, "MIN_WIDTH", {value: 150});
 
 function World() {
-	this.width = 480;
-	this.height = 320;
+	this.width = window.innerWidth;
+	this.height = 400;
 
 	this.frame = 0;
 
@@ -25,14 +37,14 @@ function World() {
 
 	this.collectedMultipliers = [];
 
-	this.blockMoveSpeed = 0.1;
+	this.player.vx = 0.1;
     this.nextBlockFrame = 0;
 
 	this.initBlocks();
 }
 
 World.prototype.tick = function(timePassed) {
-  this.blockMoveSpeed = (Math.exp(this.frame/20000)) / 10;
+  this.player.vx = (Math.exp(this.frame/20000)) / 10;
   this.manageBlocks(timePassed);
 
 	this.player.tick(timePassed, this.blocks);
@@ -63,7 +75,7 @@ World.prototype.initBlocks = function() {
 		var block = new Block(this);
 		block.x = Math.random() * this.width;
 
-		if(!this.isOverlappingAny(block)){
+		if(!this.isOverlappingAny(block) || this.blockIsTooCloseToAny(block)){
 			this.blocks.push(block);
 
 			if(Math.random() > World.MULTIPLIER_PROBABILITY){
@@ -101,7 +113,7 @@ World.prototype.generateBlock = function() {
 
 		do {
 			block = new Block(this);
-		} while(this.isOverlappingAny(block));
+		} while(!this.blockIsValid(block));
 
 		if(Math.random() > World.MULTIPLIER_PROBABILITY){
 			var multiplier;
@@ -122,7 +134,7 @@ World.prototype.moveObjects = function (timePassed) {
 	for (var i = 0; i < this.blocks.length ;i++) {
 
 		var block = this.blocks[i];
-		block.x -= this.blockMoveSpeed * timePassed;
+		block.x -= this.player.vx * timePassed;
 
 		if (block.x + block.width < 0) {
 			this.blocks.splice(i, 1);
@@ -133,7 +145,7 @@ World.prototype.moveObjects = function (timePassed) {
 	for(i = 0; i < this.multipliers.length; i++) {
 
 		var multiplier = this.multipliers[i];
-		multiplier.x -= this.blockMoveSpeed * timePassed;
+		multiplier.x -= this.player.vx * timePassed;
 
 		if (multiplier.x + multiplier.width < 0) {
 			this.multipliers.splice(i, 1);
@@ -142,17 +154,6 @@ World.prototype.moveObjects = function (timePassed) {
 	}
 
 };
-
-/*
-	Blocks can't overlap.
-	There can't be a point where it's impossible to make it to a block.
-	x       x+width
-	___________
-	|		  |
-	|	______|___
-	|__|______|  |
-	   |_________|
-*/
 
 World.prototype.isOverlappingAny = function (block) {
 	for(var i = 0; i < this.blocks.length; i++){
@@ -164,6 +165,33 @@ World.prototype.isOverlappingAny = function (block) {
 	return false;
 };
 
+World.prototype.isValid = function(block) {
+	for(var i = 0; i < this.blocks.length; i++){
+		if(this.blocks[i].isOverlapping(block) || this.blocks[i].getDist(block) < World.MIN_BLOCK_DIST){
+			return false;
+		}
+	}
+
+	return false;
+};
+
+World.prototype.blockIsValid = function(block) {
+	var accessible = false;
+
+	for(var i = 0; i < this.blocks.length; i++) {
+		var startBlock = this.blocks[i];
+
+		if(block.getDist(startBlock) < World.MIN_BLOCK_DIST) {
+			return false;
+		}
+
+		if(startBlock.canGetTo(block), this.player.vx){
+			accessible = true;
+		}
+	}
+
+	return accessible;
+};
 
 function Block(world){
 	this.x = world.width + 100;
@@ -184,6 +212,37 @@ Block.prototype.isOverlapping = function (block) {
 	return true;
 };
 
+Block.prototype.getDist = function (block) {
+	return Math.sqrt((block.x - this.x) * (block.x - this.x) + (block.y - this.y) * (block.y - this.y));
+};
+
+
+Block.prototype.canGetTo = function(block, vx) {
+	var jumpAndBoostFromRightToLeft = Player.simulateJumpAndBoost((block.x + this.x - this.width) / vx, this.y, 0,
+		Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+		Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+
+	var jumpAndBoostFromRightToRight = Player.simulateJumpAndBoost((block.x + block.width - this.x - this.width) / vx, this.y, 0,
+		Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+		Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+
+	var fallToLeft = Player.simulateFall((block.x - this.x - this.width) / vx, this.y, 0,
+		Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY);
+
+	var fallToRight = Player.simulateFall((block.x + block.width - this.x - this.width) / vx, this.y, 0,
+		Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY);
+
+	//TODO: wiggle room?
+	return (block.y >= fallToLeft && block.y <= jumpAndBoostFromRightToLeft) ||
+	       (block.y >= fallToRight && block.y <= jumpAndBoostFromRightToRight) ||
+		   (block.y <= fallToLeft && block.y >= jumpAndBoostFromRightToRight);
+};
+
+//TODO: this could be more efficient if we used fallFromRight and then jumpAndBoostFromRight
+// Block.prototype.canGetTo = function(block) {
+// 	return this.canFallTo(block) || this.canJumpTo(block);
+// };
+
 function MultiplierPickup(block){
 	this.width = this.height = 15;
 
@@ -198,13 +257,50 @@ MultiplierPickup.prototype.getCorners = function() {
 		    {x : this.x + this.width/2, y : this.y + this.height}];  //bottom
 };
 
-/*block1 = {'x' : 10, 'width' : 10, 'y' : 10, 'height' : 10};
-block2 = {'x' : 15, 'width' : 10, 'y' : 15, 'height' : 10};
-block3 = {'x' : 21, 'width' : 10, 'y' : 15, 'height' : 10};
-block4 = {'x' : 21, 'width' : 10, 'y' : 21, 'height' : 10};
-block5 = {'x' : 0, 'width' : 11, 'y' : 5, 'height' : 10};
 
-console.log(is_overlapping(block1, block2));
-console.log(is_overlapping(block1, block3));
-console.log(is_overlapping(block1, block4));
-console.log(is_overlapping(block1, block5));*/
+//This is kept here because it's the technically right way to calculate it,
+//If the formula is ever changed for gravity
+//then falling might not intersect with jumping.
+
+// Block.prototype.canFallTo = function(block, vx) {
+// 	var fallToLeft = Player.simulateFall((block.x - this.x - this.width) / vx, this.y, 0,
+// 		Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY);
+//
+// 	var jumpToLeft = Player.simulateJump((block.x - this.x - this.width) / vx, this.y, 0,
+//             Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+//             Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+// 	var fallToRight = Player.simulateFall((block.x + block.width - this.x - this.width) / vx, this.y, 0,
+// 		Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY);
+//
+// 	var jumpToRight = Player.simulateJump((block.x + block.width - this.x - this.width) / vx, this.y, 0,
+// 			Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+// 			Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+//
+// 	return (block.y >= fallToLeft && block.y <= jumpToLeft) ||
+// 	       (block.y >= fallToRight && block.y <= fallToRight) ||
+// 		   (block.y <= fallToLeft && block.y >= jumpToRight);
+// };
+//
+// Block.prototype.canJumpTo = function(block, vx) {
+// 	var jumpAndBoostFromRightToLeft = Player.simulateJumpAndBoost((block.x + this.x - this.width) / vx, this.y, 0,
+// 		Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+// 		Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+// 	var jumpAndBoostFromRightToRight = Player.simulateJumpAndBoost((block.x + block.width - this.x - this.width) / vx, this.y, 0,
+// 		Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+// 		Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+// 	var jumpFromLeftToLeft = Player.simulateJump((block.x - this.x) / vx, this.y, 0,
+//             Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+//             Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+// 	var jumpFromLeftToRight = Player.simulateJump((block.x + block.width - this.x) / vx, this.y, 0,
+// 			Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+// 			Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS);
+//
+// 	return (block.y >= jumpFromLeftToLeft && block.y <= jumpAndBoostFromRightToLeft) ||
+// 	       (block.y >= jumpFromLeftToRight && block.y <= jumpAndBoostFromRightToRight) ||
+// 		   (block.y <= jumpFromLeftToLeft && block.y >= jumpAndBoostFromRightToRight);
+// };

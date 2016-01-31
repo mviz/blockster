@@ -30,10 +30,17 @@ Object.defineProperty(Line, "MAX_WIDTH", {value: 150});
 Object.defineProperty(Line, "MIN_WIDTH", {value: 100});
 
 
-function Graphics(world, canvas,  context) {
+function Graphics(world, canvas,  context, debug) {
+    this.debug = debug;
+
     this.world = world;
     this.context = context;
     this.canvas = canvas;
+
+    if(debug) {
+        this.trail = [];
+    }
+
     this.animations = [];
 
     this.initLines();
@@ -84,6 +91,14 @@ Graphics.prototype.draw = function(timePassed) {
         this.drawBoost();
 
         this.drawHud();
+
+        if(this.debug){
+            this.debugTrail();
+            this.debugFallCurve();
+            this.debugJumpCurve();
+            this.debugJumpAndBoostCurve();
+            this.debugBlocksValidity();
+        }
     }
 };
 
@@ -132,7 +147,7 @@ Graphics.prototype.drawBoost = function () {
 
     var player = this.world.player;
 
-    if(player.vy < 0){
+    if(player.jumpAccelTimeLeft > 0){
         var a = {x: 0,                              y: 0};
         var b = {x: player.width,                   y: 0};
         var c = {x: Math.floor(player.width/4),     y: 7};
@@ -268,6 +283,122 @@ Graphics.prototype.initLines = function () {
         this.lines.push(new Line(this.world, Math.random() * this.world.width));
     }
 };
+
+Graphics.prototype.debugFallCurve = function() {
+    var fallOverTime = function(t) {
+        return {"x" : this.world.player.vx * t + this.world.player.x,
+        "y" : Player.simulateFall(t, this.world.player.y, this.world.player.vy,
+                   Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY)};
+    };
+
+    this.drawOverTime(fallOverTime.bind(this), this.world.player, "#00FF00", 2000, 10);
+};
+
+Graphics.prototype.debugJumpCurve = function() {
+    var jumpOverTime = function(t) {
+        return {"x" : this.world.player.vx * t + this.world.player.x,
+        "y" : Player.simulateJump(t, this.world.player.y, this.world.player.vy,
+            Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+            Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS)};
+    };
+
+    this.drawOverTime(jumpOverTime.bind(this), this.world.player, "#0000FF", 2000, 10);
+};
+
+Graphics.prototype.debugJumpAndBoostCurve = function() {
+    var jumpAndBoostOverTime = function(t) {
+        return {"x" : this.world.player.vx * t + this.world.player.x,
+        "y" : Player.simulateJumpAndBoost(t, this.world.player.y, this.world.player.vy,
+            Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+            Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS)};
+    };
+
+    this.drawOverTime(jumpAndBoostOverTime.bind(this), this.world.player, "#FF0000", 2000, 10);
+};
+
+Graphics.prototype.debugBlocksValidity = function() {
+    for(var i = 0; i < this.world.blocks.length; i++){
+        this.debugBlockValidity(this.world.blocks[i]);
+    }
+};
+
+Graphics.prototype.debugBlockValidity = function(block) {
+    //draw fall area. (fall, and jump from right side.)
+    var fallFromBlockAndJump = function(t) {
+        return {"x" : this.world.player.vx * t + block.x + block.width,
+        "y" : Player.simulateJump(t, block.y, 0,
+            Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+            Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS)};
+    };
+
+    var fallFromBlock = function(t) {
+        return {"x" : this.world.player.vx * t + block.x + block.width,
+        "y" : Player.simulateFall(t, block.y, 0,
+            Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY)};
+    };
+
+    this.drawOverTime(fallFromBlock.bind(this), block, "#FF0000", 2000, 200);
+    this.drawOverTime(fallFromBlockAndJump.bind(this), block, "#FF0000", 2000, 200);
+
+    //draw jump area left jump, right jump + boost
+
+    var jumpFromLeftOfBlock = function(t) {
+        return {"x" : this.world.player.vx * t + block.x,
+        "y" : Player.simulateJump(t, block.y, 0,
+            Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+            Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS)};
+    };
+
+    var jumpAndBoostFromRightOfBlock = function(t) {
+        return {"x" : this.world.player.vx * t + block.x + block.width,
+        "y" : Player.simulateJumpAndBoost(t, block.y, 0,
+            Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,
+            Player.MAX_VELOCITY, Player.JUMP_LENGTH_IN_MILLISECONDS)};
+    };
+
+    this.drawOverTime(jumpFromLeftOfBlock.bind(this), block, "#00FF00", 2000, 200);
+    this.drawOverTime(jumpAndBoostFromRightOfBlock.bind(this), block, "#00FF00", 2000, 200);
+};
+
+Graphics.prototype.drawOverTime = function(func, start, color, times, interval) {
+    this.context.moveTo(start.x, start.y);
+
+    this.context.strokeStyle = color;
+    this.context.stroke_width = 1;
+    this.context.beginPath();
+
+    for(var t = 0; t < times; t += interval) {
+        var p = func(t);
+        this.context.lineTo(p.x, p.y);
+    }
+
+    this.context.stroke();
+};
+
+Graphics.prototype.debugTrail = function() {
+    this.context.moveTo(this.world.player.x, this.world.player.y);
+
+    this.context.strokeStyle = "#000000";
+    this.context.stroke_width = 2;
+    this.context.beginPath();
+
+    for(var i = 0; i < this.trail.length; i++) {
+        var p = this.trail[i];
+        p.x -= this.world.player.vx;
+
+        this.context.lineTo(p.x, p.y);
+    }
+
+    this.context.stroke();
+
+    while(this.trail.length > 0 && this.trail[0].x <= 0) {
+        this.trail.shift();
+    }
+
+    this.trail.push({"x" : this.world.player.x, "y" : this.world.player.y});
+};
+
+
 
 function Line(world, x) {
     this.stroke_width = Utils.randomRange(Line.MIN_STROKE_WIDTH, Line.MAX_STROKE_WIDTH);

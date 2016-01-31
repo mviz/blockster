@@ -6,21 +6,18 @@
 
 "use strict";
 
-//TODO: implement high score with cookies (or a node instance.....)
 //TODO: integrate with Facebook
-
-//TODO: make sure you can always jump between blocks. What if we just drew a
-//circle around each block and spawned them every time the last block doesn't
-//have one (within that range), AND randomly spawna block every (1 -> rand) seconds
 
 //TODO: make cool graphics
 //TODO: add more animations and stuff.
-//TODO: Game needs rebalancing, it's super hard to do anything now.
 
-//TODO: Make it responsive so that we maximize our width. The goal is to make
-//landscape on a phone look less terrible
+//TODO: make platforms skinnier then make it so you can go through the bottom of them?
+//This would solve jitter problems and stuff.
+
+//TODO: pause when you change tabs etc. (the canvas loses focus)
 
 //BUG: There's a really weird bug where the game restarts using touch randomly...
+//BUG: Sometimes you fall through blocks...
 
 Object.defineProperty(Engine, "SPACE_BAR", {value: 32});
 
@@ -36,7 +33,7 @@ Engine.prototype.init = function() {
 
 
     this.world = new World();
-    this.graphics = new Graphics(this.world, this.canvas, this.context);
+    this.graphics = new Graphics(this.world, this.canvas, this.context, false);
 
     window.addEventListener("resize", this.graphics.resizeCanvas());
 

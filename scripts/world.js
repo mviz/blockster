@@ -5,207 +5,192 @@
 
 "use strict";
 
+//TODO: could we make a multiplier compose a block and therefore simplify their lifecycles?
+//Then when we draw them we HAVE to draw both at the same time..
+
+//TODO: fix the "remove multipliers" workflow. Maybe the world should handle physics and collision...
+//This would actually make a LOT of sense
+
+//TODO: keep blocks a sorted list by x values. This simplifies block removal, and when to generate a new block.
+
 //TODO: change block minimum distance so that it measures from the center or something.
-//TODO: change initial block generation to be procedural so that there's a guaranteed path to the next ones.. Or we
-//Could make a really long block as an initial start.
-
-Object.defineProperty(World, "INIT_BLOCKS", {value: 10});
-//TODO: Change block generation to this because then we can use as wide screen as we want
-//Use an exponential function with regards to distance travelled since last block, st. at AVG_BLOCKS_PER_100PX the probability of
-//A new block is essentially 100%
-Object.defineProperty(World, "AVG_BLOCKS_PER_100PX", {value: 30});
-
-//TODO: remove this because otherwise we won't ever
-Object.defineProperty(World, "MIN_WAIT_FOR_BLOCK", {value: 30});
-Object.defineProperty(World, "MAX_WAIT_FOR_BLOCK", {value: 130});
-
-Object.defineProperty(World, "MULTIPLIER_PROBABILITY", {value: 0.6});
-
-Object.defineProperty(World, "MIN_BLOCK_DIST", {value: 50});
 
 Object.defineProperty(Block, "MAX_WIDTH", {value: 100});
 Object.defineProperty(Block, "MIN_WIDTH", {value: 150});
+
+Object.defineProperty(World, "BLOCK_GENERATION_THRESHOLD", {value: 3});
+
 
 function World() {
 	this.width = window.innerWidth;
 	this.height = 400;
 
-	this.frame = 0;
-
 	this.player = new Player();
-    this.multipliers = [];
-
+	this.blocks = [];
 	this.collectedMultipliers = [];
 
-	this.player.vx = 0.1;
-    this.nextBlockFrame = 0;
+	var startingBlock = new Block(0, this.player.height + 40);
+	startingBlock.width = Block.MAX_WIDTH * 2;
+	this.addBlock(startingBlock);
 
-	this.initBlocks();
+	this.worldGenerator = new WorldGenerator(startingBlock);
+
+	this.player.vx = 0.1;
 }
 
+World.prototype.getBlockGenerationThreshold = function () {
+	return this.width * World.BLOCK_GENERATION_THRESHOLD;
+};
+
 World.prototype.tick = function(timePassed) {
-  this.player.vx = (Math.exp(this.frame/20000)) / 10;
-  this.manageBlocks(timePassed);
+  	this.player.vx += 0.000001 * timePassed;
 
+	this.manageBlocks(timePassed);
+	this.collide();
 	this.player.tick(timePassed, this.blocks);
-	this.collectMultipliers(this.player.collideMultipliers(this.multipliers));
-
-	this.frame += 1;
 };
 
-World.prototype.collectMultipliers = function(toCollect) {
-	for (var i = 0; i < toCollect.length; i++) {
-		var index = this.multipliers.indexOf(toCollect[i]);
+World.prototype.collide = function() {
+    this.player.touchingBlock = undefined;
 
-		this.collectedMultipliers.push(this.multipliers[index]);
+    var i = 0;
 
-		if(index > -1){
-			this.player.multiplier.add();
-			this.multipliers.splice(index, 1);
-		}
+    while(i < this.blocks.length && this.blocks[i].x < this.width) {
+		var block = this.blocks[i];
+
+        if(block.collides(this.player)) {
+            if(this.player.vy < 0) {
+                this.player.vy = 0;
+                this.player.y = block.y + block.height + 2;
+            } else {
+                this.player.touchingBlock = block;
+                this.player.hasBoost = true;
+            }
+        }
+
+        if(block.multiplier && block.multiplier.collides(this.player)) {
+			this.collectedMultipliers.push(block.multiplier);
+			block.multiplier = undefined;
+        }
+		i++;
 	}
-};
-
-World.prototype.initBlocks = function() {
-
-	this.blocks = [];
-
-	while(this.blocks.length < World.INIT_BLOCKS) {
-
-		var block = new Block(this);
-		block.x = Math.random() * this.width;
-
-		if(!this.isOverlappingAny(block) || this.blockIsTooCloseToAny(block)){
-			this.blocks.push(block);
-
-			if(Math.random() > World.MULTIPLIER_PROBABILITY){
-				var multiplier;
-
-				do {
-					multiplier = new MultiplierPickup(block);
-				} while(this.isOverlappingAny(multiplier));
-
-				this.multipliers.push(multiplier);
-			}
-		}
-	}
-
-	var startingBlock = new Block(this);
-	startingBlock.y = this.player.height + 20;
-	startingBlock.width = Block.MAX_WIDTH * 2;
-	startingBlock.x = 0;
-
-	this.blocks.push(startingBlock);
-
 };
 
 World.prototype.manageBlocks = function (timePassed) {
-	this.generateBlock();
+	while(!this.blocks.length || this.blocks[this.blocks.length - 1].x < this.getBlockGenerationThreshold()){
+		this.worldGenerator.generate(this);
+	}
+
 	this.moveObjects(timePassed);
 };
 
-World.prototype.generateBlock = function() {
-	if(this.frame >= this.nextBlockFrame) {
-
-		this.nextBlockFrame = this.frame + Utils.randomRange(World.MIN_WAIT_FOR_BLOCK, World.MAX_WAIT_FOR_BLOCK);
-
-		var block;
-
-		do {
-			block = new Block(this);
-		} while(!this.blockIsValid(block));
-
-		if(Math.random() > World.MULTIPLIER_PROBABILITY){
-			var multiplier;
-
-			do {
-				multiplier = new MultiplierPickup(block);
-			} while(this.isOverlappingAny(multiplier));
-
-			this.multipliers.push(multiplier);
-		}
-
-		this.blocks.push(block);
-	}
-};
-
 World.prototype.moveObjects = function (timePassed) {
+	var moveAmount = this.player.vx * timePassed;
+	this.lastBlockX -= this.player.vx;
 
 	for (var i = 0; i < this.blocks.length ;i++) {
 
 		var block = this.blocks[i];
-		block.x -= this.player.vx * timePassed;
+		block.x -= moveAmount;
 
 		if (block.x + block.width < 0) {
-			this.blocks.splice(i, 1);
+			this.blocks.shift();
 			i--;
 		}
 	}
+};
 
-	for(i = 0; i < this.multipliers.length; i++) {
+World.prototype.addBlock = function(block) {
+	var i = this.blocks.length;
 
-		var multiplier = this.multipliers[i];
-		multiplier.x -= this.player.vx * timePassed;
+	while(i > 0 &&  block.x < this.blocks[i - 1].x) {
+		i--;
+	}
 
-		if (multiplier.x + multiplier.width < 0) {
-			this.multipliers.splice(i, 1);
+	this.blocks.splice(i, 0, block);
+};
+
+World.prototype.popCollectedMultipliers = function() {
+	var collectedMultipliersTemp = this.collectedMultipliers;
+	this.collectedMultipliers = [];
+
+	return collectedMultipliersTemp;
+};
+
+Object.defineProperty(WorldGenerator, "CREATE_NODE_PROBABILITY", {value: 0.1});
+Object.defineProperty(WorldGenerator, "TERMINATE_NODE_PROBABILITY", {value: 0.1});
+Object.defineProperty(WorldGenerator, "MIN_NODES", {value: 1});
+Object.defineProperty(WorldGenerator, "MAX_NODES", {value: 5});
+Object.defineProperty(WorldGenerator, "MIN_BLOCK_DIST", {value: 50});
+
+function WorldGenerator(startingBlock) {
+	this.nodes = [startingBlock];
+}
+
+WorldGenerator.prototype.generate = function(world) {
+	//NOTE: this will generate the nodes that we create too...
+	//debugger;
+	for(var i = 0; i < this.nodes.length; i++) {
+		//Chance to end this node.
+		if(this.nodes.length > WorldGenerator.MIN_NODES && Math.random() < WorldGenerator.TERMINATE_NODE_PROBABILITY) {
+			this.nodes.pop(i);
 			i--;
+			continue;
 		}
-	}
 
+		if(this.nodes.length < WorldGenerator.MAX_NODES && Math.random < WorldGenerator.CREATE_NODE_PROBABILITY) {
+			this.nodes.push(this.generateBlock(this.nodes[i], world));
+		}
+
+		this.nodes[i] = this.generateBlock(this.nodes[i], world);
+	}
 };
 
-World.prototype.isOverlappingAny = function (block) {
-	for(var i = 0; i < this.blocks.length; i++){
-		if(this.blocks[i].isOverlapping(block)){
-			return false;
-		}
-	}
+WorldGenerator.prototype.generateBlock = function(startBlock, world) {
+	//Random x coord between block.x and some predetermined dist.
+	//Then create a block with it.
+	//Test it against min dist etc (extract this to a function on world maybe)
+	//if it is reachable, tell the world to add it, then return it.
 
-	return false;
+	/*var block;
+
+	var maxX = world.player.vx * startBlock.x;
+	var t = (world.height - startBlock.y ) / Player.MAX_VELOCITY;
+	var estX = world.player.vx * t;
+	*/
+
+
+	/*
+	do {
+		block = new Block(Utils.randomRange(startBlock.x, startBlock.x + world.width / 2), Utils.randomRange(0, world.height));
+	} while (!(startBlock.canGetTo(block)));// && startBlock.getDist(block) > WorldGenerator.MIN_BLOCK_DIST));
+	*/
+
+	var block = new Block(Utils.randomRange(startBlock.x, startBlock.x + world.width / 4), Utils.randomRange(0, world.height));
+
+	//TODO: mindist only measures against one block.
+	world.addBlock(block);
+
+	return block;
 };
 
-World.prototype.isValid = function(block) {
-	for(var i = 0; i < this.blocks.length; i++){
-		if(this.blocks[i].isOverlapping(block) || this.blocks[i].getDist(block) < World.MIN_BLOCK_DIST){
-			return false;
-		}
-	}
+Object.defineProperty(Block, "MULTIPLIER_PROBABILITY", {value: 0.6});
 
-	return false;
-};
-
-World.prototype.blockIsValid = function(block) {
-	var accessible = false;
-
-	for(var i = 0; i < this.blocks.length; i++) {
-		var startBlock = this.blocks[i];
-
-		if(block.getDist(startBlock) < World.MIN_BLOCK_DIST) {
-			return false;
-		}
-
-		if(startBlock.canGetTo(block), this.player.vx){
-			accessible = true;
-		}
-	}
-
-	return accessible;
-};
-
-function Block(world){
-	this.x = world.width + 100;
+function Block(x, y){
+	this.x = x;
+	this.y = y;
 
 	this.width = Utils.randomRange(Block.MIN_WIDTH, Block.MAX_WIDTH);
 	this.height = 10;
 
-	this.y = Utils.randomRange(10 + this.height, world.height - 10 - this.height); //TODO: magic numbers
+	if(Math.random() < Block.MULTIPLIER_PROBABILITY) {
+		this.multiplier = new MultiplierPickup(this);
+	}
 }
 
-
-Block.prototype.isOverlapping = function (block) {
-	if(this.x + this.width < block.x || this.x > block.x + block.width ||
-	   this.y + this.height < block.y || this.y > block.y + block.height)  {
+Block.prototype.collides = function (o) {
+	if(this.x + this.width < o.x || this.x > o.x + o.width ||
+	   this.y + this.height < o.y || this.y > o.y + o.height)  {
 		return false;
 	}
 
@@ -215,7 +200,6 @@ Block.prototype.isOverlapping = function (block) {
 Block.prototype.getDist = function (block) {
 	return Math.sqrt((block.x - this.x) * (block.x - this.x) + (block.y - this.y) * (block.y - this.y));
 };
-
 
 Block.prototype.canGetTo = function(block, vx) {
 	var jumpAndBoostFromRightToLeft = Player.simulateJumpAndBoost((block.x + this.x - this.width) / vx, this.y, 0,
@@ -232,31 +216,46 @@ Block.prototype.canGetTo = function(block, vx) {
 	var fallToRight = Player.simulateFall((block.x + block.width - this.x - this.width) / vx, this.y, 0,
 		Player.GRAVITY_PER_MILLISECOND, Player.MAX_VELOCITY);
 
-	//TODO: wiggle room?
+	//TODO: wiggle room? A block you can JUST get to will be near impossible...
 	return (block.y >= fallToLeft && block.y <= jumpAndBoostFromRightToLeft) ||
 	       (block.y >= fallToRight && block.y <= jumpAndBoostFromRightToRight) ||
 		   (block.y <= fallToLeft && block.y >= jumpAndBoostFromRightToRight);
 };
 
-//TODO: this could be more efficient if we used fallFromRight and then jumpAndBoostFromRight
-// Block.prototype.canGetTo = function(block) {
-// 	return this.canFallTo(block) || this.canJumpTo(block);
-// };
-
 function MultiplierPickup(block){
+	this.block = block;
 	this.width = this.height = 15;
 
-	this.x = block.x + Utils.randomRange(5, block.width + 5);
-	this.y = block.y - Utils.randomRange(10, 40) - this.height;
+	this.x = Utils.randomRange(5, block.width + 5);
+	this.y = Utils.randomRange(-this.height, -this.height * 4);
 }
 
-MultiplierPickup.prototype.getCorners = function() {
-	return [{x : this.x,                y : this.y + this.height/2}, //left
-		    {x : this.x + this.width/2, y : this.y},				 //top
-		    {x : this.x + this.width,   y : this.y + this.height/2}, //right
-		    {x : this.x + this.width/2, y : this.y + this.height}];  //bottom
+MultiplierPickup.prototype.getX = function() {
+	return this.block.x + this.x;
 };
 
+MultiplierPickup.prototype.getY = function() {
+	return this.block.y + this.y;
+};
+
+MultiplierPickup.prototype.getCorners = function() {
+	return [{x : this.block.x + this.x,                  y : this.block.y + this.y + this.height / 2}, //left
+		    {x : this.block.x + this.x + this.width / 2, y : this.block.y + this.y},				 //top
+		    {x : this.block.x + this.x + this.width,     y : this.block.y + this.y + this.height / 2}, //right
+		    {x : this.block.x + this.x + this.width / 2, y : this.block.y + this.y + this.height}];  //bottom
+};
+
+MultiplierPickup.prototype.collides = function(player) {
+    var playerPoints = player.getPoints();
+
+    for(var i = 0; i <  playerPoints.length; i++) {
+        if(Utils.contains(playerPoints[i], this.getCorners())) {
+            return true;
+        }
+    }
+
+    return false;
+};
 
 //This is kept here because it's the technically right way to calculate it,
 //If the formula is ever changed for gravity

@@ -12,6 +12,7 @@
 //TODO: add more animations and stuff.
 
 //TODO: make platforms skinnier then make it so you can go through the bottom of them?
+//This would require predictive collision detection.
 //This would solve jitter problems and stuff.
 
 //BUG: There's a really weird bug where the game restarts using touch randomly...

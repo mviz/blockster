@@ -32,7 +32,7 @@ function Player() {
 }
 
 Player.simulateJump = function (t, y0, vy0, a, g, vmax, boostLength) {
-	if(t <= boostLength) {
+    if(t <= boostLength) {
 		return y0 + vy0 * t + 0.5 * a * t * t;
 	} else {
 		//vy0 = 0;
@@ -52,6 +52,22 @@ Player.simulateFall = function (t, y0, vy0, g, vmax) {
 	}
 };
 
+/*
+//TODO: use net accel rather than just straight up.
+Player.simulateFall = function (x, y0, vy0, g, vmax) {
+    var t = x / this.vx;
+    var vmaxat = (vmax - vy0) / g;
+
+	if(t <= vmaxat) {
+		t = y0 + t * vy0 + 0.5 * g * t * t;
+	} else {
+		t = vmax * (t - vmaxat) + Player.simulateFall(vmaxat, y0, vy0, g, vmax);
+
+	}
+    return t * this.vx;
+};
+*/
+
 Player.simulateJumpAndBoost = function (t, y0, vy0, a, g, vmax, boostLength) {
 	if(t <= boostLength) {
 		return Player.simulateJump(t, y0, vy0, a, g, vmax, boostLength);
@@ -61,7 +77,6 @@ Player.simulateJumpAndBoost = function (t, y0, vy0, a, g, vmax, boostLength) {
 };
 
 Player.prototype.tick = function(deltaTime, blocks) {
-    this.collideBlocks(blocks);
   	this.applyPhysics(deltaTime);
     this.updateScore(deltaTime);
 };
@@ -92,43 +107,6 @@ Player.prototype.updateScore = function(deltaTime) {
     this.score += this.multiplier.value * deltaTime;
 };
 
-Player.prototype.collideBlocks = function(blocks) {
-    this.touchingBlock = undefined;
-
-    for(var i = 0; i < blocks.length; i++) {
-        var block = blocks[i];
-        if(block.isOverlapping(this)) {
-            if(this.vy < 0) {
-                this.vy = 0;
-                this.y = block.y + block.height + 2;
-            } else {
-                this.touchingBlock = block;
-                this.hasBoost = true;
-            }
-
-            break;
-        }
-    }
-};
-
-Player.prototype.bottomCollision = function(blocks) {
-    //TODO: this function is very similar to topCollision, maybe we can generalize it.
-    for(var i = 0; i < blocks.length; i++){
-        var block = blocks[i];
-        if (this.y > block.y &&
-            this.y <= block.y + block.height &&
-            this.x + this.width > block.x  &&
-            this.x <= block.x + block.width
-            ){
-
-            this.vy = 0;
-            this.y = block.y + block.height + 2;
-            break;
-        }
-    }
-};
-
-
 /*
     |       /\
     |       \/
@@ -137,31 +115,15 @@ Player.prototype.bottomCollision = function(blocks) {
     lies inside the multiplier
 */
 
-Player.prototype.collideMultipliers = function(multipliers) {
+//TODO: move this to the block collision.
 
-    var collidedWith = [];
-    var playerPoints = [{x : this.x + this.width, y : this.y},                  //top right
-                         {x : this.x + this.width, y : this.y + this.height/2},//middle right
-                         {x : this.x + this.width, y : this.y + this.height},  //bottom right
-                         {x : this.x,              y : this.y + this.height},                 //bottom left
-                         {x : this.x,              y : this.y}];                                //top left
-                         // no need for middle left because that cant collide due to moving right
-
-    for(var i = 0; i < multipliers.length; i++) {
-
-        var multiplier = multipliers[i];
-
-        for(var j = 0; j <  playerPoints.length; j++) {
-            if(Utils.contains(playerPoints[j], multiplier.getCorners())) {
-                collidedWith.push(multiplier);
-                break;
-            }
-        }
-    }
-
-    return collidedWith;
+Player.prototype.getPoints = function () {
+    return [{x : this.x + this.width, y : this.y},                  //top right
+            {x : this.x + this.width, y : this.y + this.height/2},//middle right
+            {x : this.x + this.width, y : this.y + this.height},  //bottom right
+            {x : this.x,              y : this.y + this.height},                 //bottom left
+            {x : this.x,              y : this.y}];
 };
-
 
 Player.prototype.isDead = function (world) {
 	return this.y > world.height + 5;

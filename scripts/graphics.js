@@ -84,11 +84,10 @@ Graphics.prototype.draw = function(timePassed) {
         this.drawBackground(timePassed);
 
         this.drawBlocks();
-        this.drawMultiplierPickups();
         this.drawAnimations(timePassed);
 
         this.drawAvatar();
-        this.drawBoost();
+        this.drawMultiplier();
 
         this.drawHud();
 
@@ -182,10 +181,10 @@ Graphics.prototype.drawPath = function (path) {
     }
 };
 
-Graphics.prototype.drawMultiplierPickups = function(){
+Graphics.prototype.drawMultiplierPickups = function(multipliers) {
     this.context.beginPath();
 
-    this.world.multipliers.forEach(function (multiplier) {
+    multipliers.forEach(function (multiplier) {
         this.drawPath(multiplier.getCorners());
     }.bind(this));
 
@@ -194,16 +193,23 @@ Graphics.prototype.drawMultiplierPickups = function(){
 };
 
 Graphics.prototype.drawBlocks = function(){
+    var multipliers = [];
 
     this.context.fillStyle = Block.COLOR;
     this.context.beginPath();
 
     this.world.blocks.forEach(function (block) {
         this.context.rect(block.x, block.y, block.width, block.height);
+
+        if(block.multiplier) {
+            multipliers.push(block.multiplier);
+        }
     }.bind(this));
 
     this.context.fillStyle = Block.COLOR;
     this.context.fill();
+
+    this.drawMultiplierPickups(multipliers);
 };
 
 Graphics.prototype.drawScore = function () {
@@ -257,12 +263,9 @@ Graphics.prototype.drawBackground = function (timePassed) {
 };
 
 Graphics.prototype.drawAnimations = function(timePassed) {
-    this.world.collectedMultipliers.forEach(function(multiplier){
+    this.world.popCollectedMultipliers().forEach(function(multiplier){
         this.animations.push(new PickupAnimation(multiplier));
     }.bind(this));
-
-    //TODO: this is a terrible, terrible thing.
-    this.world.collectedMultipliers = [];
 
     for(var i = 0; i < this.animations.length; i++){
         var animation = this.animations[i];
@@ -420,8 +423,8 @@ function Line(world, x) {
 Object.defineProperty(PickupAnimation, "ANIMATION_LENGTH", {value: 90});
 
 function PickupAnimation(multiplier) {
-    this.y = multiplier.y;
-    this.x = multiplier.x;
+    this.y = multiplier.getY();
+    this.x = multiplier.getX();
     this.timeElapsed = 0;
     this.width = this.height = 10;
 }

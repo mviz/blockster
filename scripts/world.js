@@ -157,8 +157,9 @@ WorldGenerator.prototype.generateBlock = function(startBlock, world) {
 	var maxX = world.player.vx * startBlock.x;
 	var t = (world.height - startBlock.y ) / Player.MAX_VELOCITY;
 	var estX = world.player.vx * t;
-	*/
 
+	*/
+	
 
 	/*
 	do {

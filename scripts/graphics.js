@@ -87,7 +87,7 @@ Graphics.prototype.draw = function(timePassed) {
         this.drawAnimations(timePassed);
 
         this.drawAvatar();
-        this.drawMultiplier();
+        this.drawBoost();
 
         this.drawHud();
 
@@ -367,7 +367,7 @@ Graphics.prototype.drawOverTime = function(func, start, color, times, interval) 
     this.context.moveTo(start.x, start.y);
 
     this.context.strokeStyle = color;
-    this.context.stroke_width = 1;
+    this.context.lineWidth = 1;
     this.context.beginPath();
 
     for(var t = 0; t < times; t += interval) {
@@ -382,7 +382,7 @@ Graphics.prototype.debugTrail = function() {
     this.context.moveTo(this.world.player.x, this.world.player.y);
 
     this.context.strokeStyle = "#000000";
-    this.context.stroke_width = 2;
+    this.context.lineWidth = 1;
     this.context.beginPath();
 
     for(var i = 0; i < this.trail.length; i++) {

@@ -30,12 +30,11 @@ function Player() {
     this.multiplier = new Multiplier();
     this.score = 0;
 }
-
+//TODO: vx isn't actually constant.. it shoule probably be accounted for. 
 Player.simulateJump = function (t, y0, vy0, a, g, vmax, boostLength) {
     if(t <= boostLength) {
 		return y0 + vy0 * t + 0.5 * a * t * t;
 	} else {
-		//vy0 = 0;
 		return Player.simulateFall(t - boostLength,
 			Player.simulateJump(boostLength, y0, vy0, a, g, vmax, boostLength), boostLength * a + vy0, g, vmax);
 	}

@@ -30,7 +30,8 @@ function Player() {
     this.multiplier = new Multiplier();
     this.score = 0;
 }
-//TODO: vx isn't actually constant.. it shoule probably be accounted for. 
+
+//TODO: vx isn't actually constant.. it shoule probably be accounted for.
 Player.simulateJump = function (t, y0, vy0, a, g, vmax, boostLength) {
     if(t <= boostLength) {
 		return y0 + vy0 * t + 0.5 * a * t * t;
@@ -50,22 +51,6 @@ Player.simulateFall = function (t, y0, vy0, g, vmax) {
 		return vmax * (t - vmaxat) + Player.simulateFall(vmaxat, y0, vy0, g, vmax);
 	}
 };
-
-/*
-//TODO: use net accel rather than just straight up.
-Player.simulateFall = function (x, y0, vy0, g, vmax) {
-    var t = x / this.vx;
-    var vmaxat = (vmax - vy0) / g;
-
-	if(t <= vmaxat) {
-		t = y0 + t * vy0 + 0.5 * g * t * t;
-	} else {
-		t = vmax * (t - vmaxat) + Player.simulateFall(vmaxat, y0, vy0, g, vmax);
-
-	}
-    return t * this.vx;
-};
-*/
 
 Player.simulateJumpAndBoost = function (t, y0, vy0, a, g, vmax, boostLength) {
 	if(t <= boostLength) {

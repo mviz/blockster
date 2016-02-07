@@ -159,7 +159,7 @@ WorldGenerator.prototype.generateBlock = function(startBlock, world) {
 	var estX = world.player.vx * t;
 
 	*/
-	
+
 
 	/*
 	do {
@@ -202,6 +202,8 @@ Block.prototype.getDist = function (block) {
 	return Math.sqrt((block.x - this.x) * (block.x - this.x) + (block.y - this.y) * (block.y - this.y));
 };
 
+
+//TODO: we could simplify these calls by using x rather than t in the function itself
 Block.prototype.canGetTo = function(block, vx) {
 	var jumpAndBoostFromRightToLeft = Player.simulateJumpAndBoost((block.x + this.x - this.width) / vx, this.y, 0,
 		Player.JUMP_ACCEL_PER_MILLISECOND, Player.GRAVITY_PER_MILLISECOND,

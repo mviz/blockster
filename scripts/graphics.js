@@ -76,6 +76,8 @@ Graphics.prototype.clearScene = function () {
 };
 
 Graphics.prototype.draw = function(timePassed) {
+    this.context.restore();
+
     this.clearScene();
 
     if(this.world.player.isDead(this.world)) {

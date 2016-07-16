@@ -7,14 +7,16 @@
 "use strict";
 
 //TODO: integrate with Facebook
-
+//TODO: pause when  leaving the window
 //TODO: make cool graphics
 //TODO: add more animations and stuff.
-
+//TODO: Might be a tad bit too OOP. 
 //TODO: make platforms skinnier then make it so you can go through the bottom of them?
 //This would require predictive collision detection. (because blocks are skinny, it'd be easier to fall through)
 //This would solve jitter problems and stuff.
 
+//BUG: platforms disappear a bit early.
+//BUG: when you first start playing you always jump.
 //BUG: There's a really weird bug where the game restarts using touch randomly...
 //BUG: Sometimes you fall through blocks... probably because max_velocity and you just go right through, preictive collision would fix
 
